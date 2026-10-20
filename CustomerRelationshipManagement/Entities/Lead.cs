@@ -29,5 +29,6 @@ public class Lead
     public DateTime Created { get; set; } = DateTime.UtcNow;
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public DateTime Updated { get; set; }
-    public TypeLead TypeLead { get; set; } 
+    public TypeLead TypeLead { get; set; }
+    public DateTime? Assigned { get; set; }
 }

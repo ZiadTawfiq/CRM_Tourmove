@@ -1,4 +1,4 @@
-﻿using CustomerRelationshipManagement.Entities;
+using CustomerRelationshipManagement.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CustomerRelationshipManagement.Repositories
@@ -8,7 +8,11 @@ namespace CustomerRelationshipManagement.Repositories
         public async Task CreateAsync(Lead lead)
         {
 
-
+            var existingLead = await dbContext.Leads.Include(_ =>_.Project).FirstOrDefaultAsync(_ => _.PhoneNumber == lead.PhoneNumber);
+            if (existingLead != null)
+            {
+                throw new Exception($"Lead with phone number {lead.PhoneNumber} already exists! in {existingLead.Project.Name}");
+            }
             lead.Created = DateTime.UtcNow;
             dbContext.Leads.Add(lead);
             await dbContext.SaveChangesAsync();
@@ -31,7 +35,7 @@ namespace CustomerRelationshipManagement.Repositories
             return await dbContext.Leads.ToListAsync();
         }
 
-        public async Task<Lead> GetByIdAsync(int id)
+        public async Task<Lead?> GetByIdAsync(int id)
         {
             var lead = await dbContext.Leads.FirstOrDefaultAsync(_ => _.Id == id);
             if (lead is null)
