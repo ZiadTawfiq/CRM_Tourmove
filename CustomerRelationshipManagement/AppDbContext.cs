@@ -1,4 +1,4 @@
-﻿using CustomerRelationshipManagement.Entities;
+using CustomerRelationshipManagement.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +15,7 @@ namespace CustomerRelationshipManagement
         public DbSet<Project> Projects { get; set; }
         public DbSet<Owner> Owners { get; set; }
         public DbSet<Lead> Leads { get; set; }
+        public DbSet<LeadHistory> LeadHistories { get; set; }
 
 
     }
