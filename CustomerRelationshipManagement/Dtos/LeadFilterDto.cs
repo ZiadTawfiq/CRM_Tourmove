@@ -15,4 +15,4 @@ namespace CustomerRelationshipManagement.Dtos
         public DateTime? AssignedFrom { get; set; }
         public DateTime? AssignedTo { get; set; }
     }
-}
+}

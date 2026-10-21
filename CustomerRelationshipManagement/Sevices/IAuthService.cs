@@ -6,5 +6,6 @@ namespace CustomerRelationshipManagement.Sevices
     {
         Task<AuthResponseDto?> LoginAsync(LoginDto loginDto);
         Task<AuthResponseDto> RegisterAsync(CreateEmployeeDto registerDto);
+        Task<AuthResponseDto> ResetPasswordAsync(ResetPasswordDto dto); 
     }
 }

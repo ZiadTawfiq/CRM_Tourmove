@@ -17,6 +17,7 @@ namespace CustomerRelationshipManagement.Sevices
         Task<List<LeadDto>> FilterLeads(LeadFilterDto filterDto);
         Task<List<LeadDto>> SearchByPhoneNumber(string phoneNumber);
         Task AddActionToLead(ActionDto actionDto);
-        Task<List<LeadDto>> GetLeadsThatSalesTriedToDublicate();
+        Task<List<LeadDto>> GetLeadsThatSalesTriedToDublicateByProject(List<int> ProjectIds);
+        Task UpdateLeadStatus(int leadId);
     }
 }

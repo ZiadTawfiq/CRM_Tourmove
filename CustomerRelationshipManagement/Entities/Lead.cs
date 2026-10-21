@@ -31,4 +31,5 @@ public class Lead
     public DateTime Updated { get; set; }
     public TypeLead TypeLead { get; set; }
     public DateTime? Assigned { get; set; }
+    public bool IsDublicated { get; set; } = false;
 }
