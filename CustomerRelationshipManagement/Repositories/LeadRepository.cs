@@ -1,3 +1,4 @@
+using CustomerRelationshipManagement.Dtos;
 using CustomerRelationshipManagement.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,10 +21,10 @@ namespace CustomerRelationshipManagement.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            var existingLead = await dbContext.Leads.FirstOrDefaultAsync(_ => _.Id == id);
+            var existingLead = await dbContext.Leads.FindAsync(id);
             if (existingLead == null)
             {
-                throw new Exception($"Lead with {id} not found!"); 
+                throw new KeyNotFoundException($"Lead with id {id} not found!"); 
             }
             dbContext.Leads.Remove(existingLead);
             await dbContext.SaveChangesAsync(); 
@@ -40,28 +41,44 @@ namespace CustomerRelationshipManagement.Repositories
             var lead = await dbContext.Leads.FirstOrDefaultAsync(_ => _.Id == id);
             if (lead is null)
             {
-                throw new Exception($"Lead with id {id} not found");
+                throw new KeyNotFoundException($"Lead with id {id} not found");
             }
             return lead;
         }
 
-        public async Task UpdateAsync(Lead lead)
+        public async Task UpdateAsync(UpdateLeadDto updateLeadDto)
         {
-            var existingLead = await dbContext.Leads.FirstOrDefaultAsync(_ => _.Id == lead.Id);
+            var existingLead = await dbContext.Leads.FindAsync(updateLeadDto.Id);
             if (existingLead is null)
             {
-                throw new Exception($"Lead with id {lead.Id} not found");
+                throw new KeyNotFoundException($"Lead with id {updateLeadDto.Id} not found");
             }
-            existingLead.Name = lead.Name;
-            existingLead.PhoneNumber = lead.PhoneNumber;
-            existingLead.ChannelId = lead.ChannelId;
-            existingLead.ProjectId = lead.ProjectId;
-            existingLead.Updated = DateTime.UtcNow;
-            existingLead.Budget = lead.Budget;
-            existingLead.EmployeeId = lead.EmployeeId;
-            existingLead.Status = lead.Status;
 
-            dbContext.Leads.Update(existingLead);
+            if (existingLead.PhoneNumber != updateLeadDto.PhoneNumber)
+            {
+                var duplicateLead = await dbContext.Leads
+                    .Include(_ => _.Project)
+                    .FirstOrDefaultAsync(_ => _.PhoneNumber == updateLeadDto.PhoneNumber && _.Id != updateLeadDto.Id);
+                if (duplicateLead != null)
+                {
+                    throw new Exception($"Lead with phone number {updateLeadDto.PhoneNumber} already exists! in {duplicateLead.Project.Name}");
+                }
+            }
+
+            existingLead.Name = updateLeadDto.Name;
+            existingLead.PhoneNumber = updateLeadDto.PhoneNumber;
+            existingLead.ChannelId = updateLeadDto.ChannelId;
+            if (updateLeadDto.ProjectId.HasValue)
+            {
+                existingLead.ProjectId = updateLeadDto.ProjectId.Value;
+            }
+            existingLead.Budget = updateLeadDto.Budget;
+            existingLead.EmployeeId = updateLeadDto.EmployeeId;
+            existingLead.Status = updateLeadDto.Status;
+            existingLead.TypeLead = updateLeadDto.TypeLead;
+
+            existingLead.Updated = DateTime.UtcNow;
+
             await dbContext.SaveChangesAsync();
         }
     }

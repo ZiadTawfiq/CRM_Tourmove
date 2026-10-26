@@ -1,3 +1,4 @@
+using CustomerRelationshipManagement.Dtos;
 using CustomerRelationshipManagement.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,16 +9,17 @@ namespace CustomerRelationshipManagement.Repositories
         public async Task CreateAsync(Comment comment)
         {
             comment.CreatedAt = DateTime.UtcNow;
+            comment.LastUpdated = DateTime.UtcNow;
             dbContext.Comments.Add(comment);
             await dbContext.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
         {
-            var existingComment = await dbContext.Comments.FirstOrDefaultAsync(_ => _.Id == id);
+            var existingComment = await dbContext.Comments.FindAsync(id);
             if (existingComment == null)
             {
-                throw new Exception($"Comment with id {id} not found!");
+                throw new KeyNotFoundException($"Comment with id {id} not found!");
             }
             dbContext.Comments.Remove(existingComment);
             await dbContext.SaveChangesAsync();
@@ -30,10 +32,10 @@ namespace CustomerRelationshipManagement.Repositories
 
         public async Task<Comment?> GetByIdAsync(int id)
         {
-            var comment = await dbContext.Comments.FirstOrDefaultAsync(_ => _.Id == id);
+            var comment = await dbContext.Comments.FirstOrDefaultAsync(c => c.Id == id);
             if (comment is null)
             {
-                throw new Exception($"Comment with id {id} not found");
+                throw new KeyNotFoundException($"Comment with id {id} not found");
             }
             return comment;
         }
@@ -45,18 +47,17 @@ namespace CustomerRelationshipManagement.Repositories
                 .ToListAsync();
         }
 
-        public async Task UpdateAsync(Comment comment)
+        public async Task UpdateAsync(UpdateCommentDto updateCommentDto)
         {
-            var existingComment = await dbContext.Comments.FirstOrDefaultAsync(_ => _.Id == comment.Id);
+            var existingComment = await dbContext.Comments.FindAsync(updateCommentDto.Id);
             if (existingComment is null)
             {
-                throw new Exception($"Comment with id {comment.Id} not found");
+                throw new KeyNotFoundException($"Comment with id {updateCommentDto.Id} not found");
             }
 
-            existingComment.Text = comment.Text;
+            existingComment.Text = updateCommentDto.Text;
             existingComment.LastUpdated = DateTime.UtcNow;
 
-            dbContext.Comments.Update(existingComment);
             await dbContext.SaveChangesAsync();
         }
     }

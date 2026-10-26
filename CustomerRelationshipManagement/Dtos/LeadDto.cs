@@ -39,7 +39,7 @@ namespace CustomerRelationshipManagement.Dtos
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
-        public int ProjectId { get; set; }
+        public int? ProjectId { get; set; }
         public string? EmployeeId { get; set; }
         public int? ChannelId { get; set; }
         public decimal? Budget { get; set; }

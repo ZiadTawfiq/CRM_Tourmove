@@ -10,7 +10,6 @@ namespace CustomerRelationshipManagement.Sevices
         Task<LeadDto> CreateAsync(CreateLeadDto createLeadDto);
         Task UpdateAsync(UpdateLeadDto updateLeadDto);
         Task DeleteAsync(int id);
-
         Task AssignLeadToSalesRep(int leadId, int salesRepId);
         Task DuplicateLead(int leadId);
         Task<List<CommentDto>> GetCommentsForLead(int leadId);

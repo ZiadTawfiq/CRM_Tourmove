@@ -1,3 +1,4 @@
+using CustomerRelationshipManagement.Dtos;
 using CustomerRelationshipManagement.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,10 +14,10 @@ namespace CustomerRelationshipManagement.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            var existingOwner = await dbContext.Owners.FirstOrDefaultAsync(_ => _.Id == id);
+            var existingOwner = await dbContext.Owners.FindAsync(id);
             if (existingOwner == null)
             {
-                throw new Exception($"Owner with id {id} not found!");
+                throw new KeyNotFoundException($"Owner with id {id} not found!");
             }
             dbContext.Owners.Remove(existingOwner);
             await dbContext.SaveChangesAsync();
@@ -32,24 +33,31 @@ namespace CustomerRelationshipManagement.Repositories
             var owner = await dbContext.Owners.FirstOrDefaultAsync(_ => _.Id == id);
             if (owner is null)
             {
-                throw new Exception($"Owner with id {id} not found");
+                throw new KeyNotFoundException($"Owner with id {id} not found");
             }
             return owner;
         }
 
-        public async Task UpdateAsync(Owner owner)
+        public async Task UpdateAsync(UpdateOwnerDto updateOwnerDto)
         {
-            var existingOwner = await dbContext.Owners.FirstOrDefaultAsync(_ => _.Id == owner.Id);
+            var existingOwner = await dbContext.Owners.FindAsync(updateOwnerDto.Id);
             if (existingOwner is null)
             {
-                throw new Exception($"Owner with id {owner.Id} not found");
+                throw new KeyNotFoundException($"Owner with id {updateOwnerDto.Id} not found");
             }
 
-            existingOwner.Name = owner.Name;
-            existingOwner.PhoneNumber = owner.PhoneNumber;
-            existingOwner.EmployeeId = owner.EmployeeId;
+            existingOwner.Name = updateOwnerDto.Name;
+            existingOwner.PhoneNumber = updateOwnerDto.PhoneNumber;
 
-            dbContext.Owners.Update(existingOwner);
+            if (int.TryParse(updateOwnerDto.EmployeeId, out var empId))
+            {
+                existingOwner.EmployeeId = empId;
+            }
+            else
+            {
+                existingOwner.EmployeeId = null;
+            }
+
             await dbContext.SaveChangesAsync();
         }
     }

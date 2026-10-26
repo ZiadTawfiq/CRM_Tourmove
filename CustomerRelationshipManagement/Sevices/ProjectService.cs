@@ -32,14 +32,7 @@ namespace CustomerRelationshipManagement.Sevices
 
         public async Task UpdateAsync(UpdateProjectDto updateProjectDto)
         {
-            var project = await projectRepository.GetByIdAsync(updateProjectDto.Id);
-            if (project is null)
-            {
-                throw new KeyNotFoundException($"Project with id {updateProjectDto.Id} not found");
-            }
-
-            project.Name = updateProjectDto.Name;
-            await projectRepository.UpdateAsync(project);
+            await projectRepository.UpdateAsync(updateProjectDto);
         }
 
         public async Task DeleteAsync(int id)

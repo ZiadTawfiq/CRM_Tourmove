@@ -26,18 +26,14 @@ namespace CustomerRelationshipManagement.Sevices
 
         public async Task<CommentDto> CreateAsync(CreateCommentDto createCommentDto)
         {
-            var comment = new Comment
-            {
-                Text = createCommentDto.Text,
-                LeadId = createCommentDto.LeadId,
-                CreatedAt = DateTime.UtcNow,
-                LastUpdated = DateTime.UtcNow
-            };
+            var comment = new Comment();
+           
 
             if (int.TryParse(createCommentDto.EmployeeId, out var empId))
             {
                 comment.EmployeeId = empId;
             }
+
 
             await commentRepository.CreateAsync(comment);
 
@@ -46,16 +42,7 @@ namespace CustomerRelationshipManagement.Sevices
 
         public async Task UpdateAsync(UpdateCommentDto updateCommentDto)
         {
-            var comment = await commentRepository.GetByIdAsync(updateCommentDto.Id);
-            if (comment is null)
-            {
-                throw new KeyNotFoundException($"Comment with id {updateCommentDto.Id} not found");
-            }
-
-            comment.Text = updateCommentDto.Text;
-            comment.LastUpdated = DateTime.UtcNow;
-
-            await commentRepository.UpdateAsync(comment);
+            await commentRepository.UpdateAsync(updateCommentDto);
         }
 
         public async Task DeleteAsync(int id)

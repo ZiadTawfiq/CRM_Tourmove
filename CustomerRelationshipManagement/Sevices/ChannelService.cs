@@ -52,14 +52,7 @@ namespace CustomerRelationshipManagement.Sevices
 
         public async Task UpdateAsync(UpdateChannelDto updateChannelDto)
         {
-            var channel = await channelRepository.GetByIdAsync(updateChannelDto.Id);
-            if (channel is null)
-            {
-                throw new KeyNotFoundException($"Channel with id {updateChannelDto.Id} not found");
-            }
-
-            channel.Name = updateChannelDto.Name;
-            await channelRepository.UpdateAsync(channel);
+            await channelRepository.UpdateAsync(updateChannelDto);
         }
 
         public async Task DeleteAsync(int id)

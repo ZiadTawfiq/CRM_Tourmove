@@ -1,3 +1,4 @@
+using CustomerRelationshipManagement.Dtos;
 using CustomerRelationshipManagement.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,10 +14,10 @@ namespace CustomerRelationshipManagement.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            var existingProject = await dbContext.Projects.FirstOrDefaultAsync(_ => _.Id == id);
+            var existingProject = await dbContext.Projects.FindAsync(id);
             if (existingProject == null)
             {
-                throw new Exception($"Project with id {id} not found!");
+                throw new KeyNotFoundException($"Project with id {id} not found!");
             }
             dbContext.Projects.Remove(existingProject);
             await dbContext.SaveChangesAsync();
@@ -32,22 +33,21 @@ namespace CustomerRelationshipManagement.Repositories
             var project = await dbContext.Projects.FirstOrDefaultAsync(_ => _.Id == id);
             if (project is null)
             {
-                throw new Exception($"Project with id {id} not found");
+                throw new KeyNotFoundException($"Project with id {id} not found");
             }
             return project;
         }
 
-        public async Task UpdateAsync(Project project)
+        public async Task UpdateAsync(UpdateProjectDto updateProjectDto)
         {
-            var existingProject = await dbContext.Projects.FirstOrDefaultAsync(_ => _.Id == project.Id);
+            var existingProject = await dbContext.Projects.FindAsync(updateProjectDto.Id);
             if (existingProject is null)
             {
-                throw new Exception($"Project with id {project.Id} not found");
+                throw new KeyNotFoundException($"Project with id {updateProjectDto.Id} not found");
             }
 
-            existingProject.Name = project.Name;
+            existingProject.Name = updateProjectDto.Name;
 
-            dbContext.Projects.Update(existingProject);
             await dbContext.SaveChangesAsync();
         }
     }

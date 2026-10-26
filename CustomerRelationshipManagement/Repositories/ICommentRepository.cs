@@ -1,3 +1,4 @@
+using CustomerRelationshipManagement.Dtos;
 using CustomerRelationshipManagement.Entities;
 
 namespace CustomerRelationshipManagement.Repositories
@@ -5,7 +6,7 @@ namespace CustomerRelationshipManagement.Repositories
     public interface ICommentRepository
     {
         Task CreateAsync(Comment comment);
-        Task UpdateAsync(Comment comment);
+        Task UpdateAsync(UpdateCommentDto updateCommentDto);
         Task DeleteAsync(int id);
         Task<Comment?> GetByIdAsync(int id);
         Task<IEnumerable<Comment>> GetAllAsync();

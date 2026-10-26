@@ -1,6 +1,7 @@
 using CustomerRelationshipManagement.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 namespace CustomerRelationshipManagement
 {
@@ -9,6 +10,21 @@ namespace CustomerRelationshipManagement
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Lead>()
+                .HasIndex(l => new 
+                {
+                    l.PhoneNumber,
+                   
+                })
+                .IsUnique();
+
+            modelBuilder.ApplyConfigurationsFromAssembly(
+                typeof(AppDbContext).Assembly);
+        }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Channel> Channels { get; set; }
         public DbSet<Comment> Comments {  get; set; }
@@ -16,6 +32,8 @@ namespace CustomerRelationshipManagement
         public DbSet<Owner> Owners { get; set; }
         public DbSet<Lead> Leads { get; set; }
         public DbSet<LeadHistory> LeadHistories { get; set; }
+
+    
 
 
     }

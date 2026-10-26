@@ -38,21 +38,7 @@ namespace CustomerRelationshipManagement.Sevices
 
         public async Task UpdateAsync(UpdateOwnerDto updateOwnerDto)
         {
-            var owner = await ownerRepository.GetByIdAsync(updateOwnerDto.Id);
-            if (owner is null)
-            {
-                throw new KeyNotFoundException($"Owner with id {updateOwnerDto.Id} not found");
-            }
-
-            owner.Name = updateOwnerDto.Name;
-            owner.PhoneNumber = updateOwnerDto.PhoneNumber;
-
-            if (int.TryParse(updateOwnerDto.EmployeeId, out var empId))
-            {
-                owner.EmployeeId = empId;
-            }
-
-            await ownerRepository.UpdateAsync(owner);
+            await ownerRepository.UpdateAsync(updateOwnerDto);
         }
 
         public async Task DeleteAsync(int id)
