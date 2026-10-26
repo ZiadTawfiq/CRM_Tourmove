@@ -25,7 +25,7 @@ namespace CustomerRelationshipManagement.Repositories
 
         public async Task<IEnumerable<Channel>> GetAllAsync()
         {
-            return await dbContext.Channels.ToListAsync();
+            return await dbContext.Channels.In.ToListAsync();
         }
 
         public async Task<Channel?> GetByIdAsync(int id)

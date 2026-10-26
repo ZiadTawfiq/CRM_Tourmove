@@ -9,12 +9,7 @@ namespace CustomerRelationshipManagement.Sevices
         public async Task<IEnumerable<ChannelDto>> GetAllAsync()
         {
             var channels = await channelRepository.GetAllAsync();
-            return channels.Select(c => new ChannelDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                LeadsCount = c.Leads?.Count ?? 0
-            });
+            return channels.Select(MapToDto(channels));
         }
 
         public async Task<ChannelDto?> GetByIdAsync(int id)
@@ -24,20 +19,16 @@ namespace CustomerRelationshipManagement.Sevices
             {
                 return null;
             }
-
-            return new ChannelDto
-            {
-                Id = channel.Id,
-                Name = channel.Name,
-                LeadsCount = channel.Leads?.Count ?? 0
-            };
+            return channel is null ? null : MapToDto(channel)
+        
         }
 
         public async Task<ChannelDto> CreateAsync(CreateChannelDto createChannelDto)
         {
             var channel = new Channel
             {
-                Name = createChannelDto.Name
+                Name = createChannelDto.Name,
+                
             };
 
             await channelRepository.CreateAsync(channel);
@@ -58,6 +49,15 @@ namespace CustomerRelationshipManagement.Sevices
         public async Task DeleteAsync(int id)
         {
             await channelRepository.DeleteAsync(id);
+        }
+        private static ChannelDto MapToDto(Channel channel)
+        {
+            return new ChannelDto
+            {
+                Id = channel.Id,
+                LeadsCount =  channel.Leads.count,
+                Name = channel.Name
+            }
         }
     }
 }
