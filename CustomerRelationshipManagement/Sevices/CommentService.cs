@@ -33,8 +33,9 @@ namespace CustomerRelationshipManagement.Sevices
             {
                 comment.EmployeeId = empId;
             }
-
-
+            
+            comment.LeadId = createCommentDto.LeadId;
+           
             await commentRepository.CreateAsync(comment);
 
             return MapToDto(comment);
