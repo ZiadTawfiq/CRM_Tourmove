@@ -36,14 +36,16 @@ namespace CustomerRelationshipManagement.Sevices
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<LeadDto>> GetAllAsync()
+        public async Task<IEnumerable<LeadDto>> GetAllAsync()
         {
-            throw new NotImplementedException();
+           var leads = await repository.GetAllAsync();
+            return leads.Select(MapToDto);
         }
 
-        public Task<LeadDto?> GetByIdAsync(int id)
+        public async Task<LeadDto?> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var lead = await repository.GetByIdAsync(id);
+            return lead != null ? MapToDto(lead) : null;
         }
 
         public Task<List<CommentDto>> GetCommentsForLead(int leadId)
@@ -63,12 +65,24 @@ namespace CustomerRelationshipManagement.Sevices
 
         public async Task UpdateAsync(UpdateLeadDto updateLeadDto)
         {
+            var lead = await repository.GetByIdAsync(updateLeadDto.Id);
+            if (lead == null)
+            {
+                throw new Exception($"Lead with ID {updateLeadDto.Id} not found.");
+            }
             await repository.UpdateAsync(updateLeadDto);
         }
 
-        public Task UpdateLeadStatus(int leadId)
+        public async Task UpdateLeadStatus(int leadId , Status status)
         {
-            throw new NotImplementedException();
+           var lead = await repository.GetByIdAsync(leadId);
+            if (lead == null)
+            {
+                throw new Exception($"Lead with ID {leadId} not found.");
+            }
+            if ()
+            
+            
         }
         private static LeadDto MapToDto(Lead lead)
         {
@@ -80,7 +94,7 @@ namespace CustomerRelationshipManagement.Sevices
                 Status = lead.Status,
                 ProjectName = lead.Project.Name,
                 ChannelName = lead.Channel.Name,
-                EmployeeName = lead.Employee?.Name,
+                EmployeeName = lead.Employee?.FullName,
                 Budget = lead.Budget,
                 TypeLead = lead.TypeLead,
                 Created = lead.Created,

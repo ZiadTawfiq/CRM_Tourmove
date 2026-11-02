@@ -1,35 +1,58 @@
-﻿using System.Text.Json.Serialization;
-
-namespace CustomerRelationshipManagement.Entities;
-
-public class Lead
+﻿
+namespace CustomerRelationshipManagement.Entities
 {
-    public int Id { get; set; }
+    public class Lead
+    {
+        public int Id { get; set; }
 
-    public string Name { get; set; } = string.Empty;
+        // Basic Information
+        public string Name { get; set; } = string.Empty;
 
-    public string PhoneNumber { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
 
-    public int ProjectId { get; set; }
-    public Project Project { get; set; } = null!;
+        public decimal? Budget { get; set; }
 
-    public string? EmployeeId { get; set; }
-    public Employee? Employee { get; set; }
+        // Project Relationship
+        public List<ProjectLead> ProjectLeads { get; set; } = new List<ProjectLead>();
 
-    public int? ChannelId { get; set; }
-    public Channel Channel { get; set; } = null!;
+        // Employee Relationship
+        public string? EmployeeId { get; set; }
+        public Employee? Employee { get; set; }
 
-    public decimal? Budget { get; set; }
+        // Channel Relationship
+        public int? ChannelId { get; set; }
+        public Channel? Channel { get; set; }
 
-    public ICollection<Comment> Comments { get; set; }
-        = new List<Comment>();
+        // Lead Status
 
-    public Status Status { get; set; } = Status.FreshLead;
+        public Status Status { get; set; } = Status.FreshLead;
 
-    public DateTime Created { get; set; } = DateTime.UtcNow;
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public DateTime Updated { get; set; }
-    public TypeLead TypeLead { get; set; }
-    public DateTime? Assigned { get; set; }
-    public bool IsDublicated { get; set; } = false;
+        public TypeLead TypeLead { get; set; }
+
+        // Comments
+        public ICollection<Comment> Comments { get; set; }
+            = new List<Comment>();
+
+        // Dates
+        public DateTime Created { get; set; } = DateTime.UtcNow;
+
+        public DateTime? Updated { get; set; }
+
+        public DateTime? Assigned { get; set; }
+
+        public DateTime? OrientationDate { get; set; }
+
+        public DateTime? ReservationDate { get; set; }
+
+        public DateTime? CancellationDate { get; set; }
+
+        // Cancellation Reason
+        public int? CancellationReasonId { get; set; }
+
+        public CancellationReason? CancellationReason { get; set; }
+
+        // Duplicate Tracking
+        public bool IsDuplicated { get; set; } = false;
+    }
+    
 }

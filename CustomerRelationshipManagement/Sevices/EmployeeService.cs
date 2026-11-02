@@ -39,27 +39,17 @@ namespace CustomerRelationshipManagement.Sevices
         {
             var employee = new Employee
             {
-                UserName = createEmployeeDto.Email,
                 Email = createEmployeeDto.Email,
-                Name = createEmployeeDto.Name,
-                PhoneNumber = createEmployeeDto.PhoneNumber
+                FullName = createEmployeeDto.FullName,
             };
-
-            var createResult = await userManager.CreateAsync(employee, createEmployeeDto.Password);
-            if (!createResult.Succeeded)
-            {
-                var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
-                throw new InvalidOperationException($"Failed to create employee: {errors}");
-            }
-
+            var CreateResult = await userManager.CreateAsync(employee, createEmployeeDto.Password);
             var roleName = createEmployeeDto.Role.ToString();
-            if (!await roleManager.RoleExistsAsync(roleName))
+            var roleExists = await roleManager.RoleExistsAsync(roleName);
+            if (!roleExists)
             {
-                await roleManager.CreateAsync(new IdentityRole(roleName));
+                throw new InvalidOperationException($"Role '{roleName}' does not exist.");
             }
-
-            await userManager.AddToRoleAsync(employee, roleName);
-
+            var addToRoleResult = await userManager.AddToRoleAsync(employee, roleName);
             return MapToDto(employee, roleName);
         }
 
@@ -71,10 +61,9 @@ namespace CustomerRelationshipManagement.Sevices
                 throw new KeyNotFoundException($"Employee with id {updateEmployeeDto.Id} not found");
             }
 
-            employee.Name = updateEmployeeDto.Name;
+            employee.FullName = updateEmployeeDto.FullName;
             employee.Email = updateEmployeeDto.Email;
             employee.UserName = updateEmployeeDto.Email;
-            employee.PhoneNumber = updateEmployeeDto.PhoneNumber;
 
             var updateResult = await userManager.UpdateAsync(employee);
             if (!updateResult.Succeeded)
@@ -91,7 +80,7 @@ namespace CustomerRelationshipManagement.Sevices
                 var roleName = updateEmployeeDto.Role.Value.ToString();
                 if (!await roleManager.RoleExistsAsync(roleName))
                 {
-                    await roleManager.CreateAsync(new IdentityRole(roleName));
+                    throw new InvalidOperationException($"Role '{roleName}' does not exist.");
                 }
 
                 await userManager.AddToRoleAsync(employee, roleName);
@@ -127,10 +116,9 @@ namespace CustomerRelationshipManagement.Sevices
             return new EmployeeDto
             {
                 Id = employee.Id,
-                Name = employee.Name,
+                FullName = employee.FullName,
                 Email = employee.Email ?? string.Empty,
-                PhoneNumber = employee.PhoneNumber,
-                Role = role
+                Role = role != null ? Enum.Parse<Role>(role) : null
             };
         }
     }

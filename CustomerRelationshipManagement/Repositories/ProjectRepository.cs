@@ -38,6 +38,14 @@ namespace CustomerRelationshipManagement.Repositories
             return project;
         }
 
+        public async Task<IEnumerable<Project>> GetProjectsByGroupIdAsync(int groupId)
+        {
+            var projects = await dbContext.Projects
+                .Where(p => p.GroupId == groupId)
+                .ToListAsync();
+            return projects;
+        }
+
         public async Task UpdateAsync(UpdateProjectDto updateProjectDto)
         {
             var existingProject = await dbContext.Projects.FindAsync(updateProjectDto.Id);

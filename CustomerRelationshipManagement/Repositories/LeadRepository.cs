@@ -9,11 +9,8 @@ namespace CustomerRelationshipManagement.Repositories
         public async Task CreateAsync(Lead lead)
         {
 
-            var existingLead = await dbContext.Leads.Include(_ =>_.Project).FirstOrDefaultAsync(_ => _.PhoneNumber == lead.PhoneNumber);
-            if (existingLead != null)
-            {
-                throw new Exception($"Lead with phone number {lead.PhoneNumber} already exists! in {existingLead.Project.Name}");
-            }
+          
+            lead.Status = Status.FreshLead;
             lead.Created = DateTime.UtcNow;
             dbContext.Leads.Add(lead);
             await dbContext.SaveChangesAsync();
@@ -46,38 +43,48 @@ namespace CustomerRelationshipManagement.Repositories
             return lead;
         }
 
-        public async Task UpdateAsync(UpdateLeadDto updateLeadDto)
+        public async Task UpdateAsync(UpdateLeadDto dto)
         {
-            var existingLead = await dbContext.Leads.FindAsync(updateLeadDto.Id);
-            if (existingLead is null)
+            var lead = await dbContext.Leads
+                .Include(l => l.ProjectLeads)
+                .FirstOrDefaultAsync(l => l.Id == dto.Id);
+
+            if (lead == null)
+                throw new KeyNotFoundException("Lead not found");
+
+            // Update basic information
+            lead.Name = dto.Name;
+            lead.PhoneNumber = dto.PhoneNumber;
+            lead.Budget = dto.Budget;
+            lead.EmployeeId = dto.EmployeeId;
+            lead.ChannelId = dto.ChannelId;
+            lead.TypeLead = dto.TypeLead;
+
+            // Change specific project
+            if (dto.OldProjectId.HasValue && dto.NewProjectId.HasValue)
             {
-                throw new KeyNotFoundException($"Lead with id {updateLeadDto.Id} not found");
+                var leadProject = lead.ProjectLeads
+                    .FirstOrDefault(lp => lp.ProjectId == dto.OldProjectId);
+
+                if (leadProject == null)
+                    throw new Exception("Lead is not associated with this project");
+
+                var newProjectExists = await dbContext.Projects
+                    .AnyAsync(p => p.Id == dto.NewProjectId);
+
+                if (!newProjectExists)
+                    throw new KeyNotFoundException("New project not found");
+
+                var alreadyLinked = lead.ProjectLeads
+                    .Any(lp => lp.ProjectId == dto.NewProjectId);
+
+                if (alreadyLinked)
+                    throw new Exception("Lead is already associated with this project");
+
+                leadProject.ProjectId = dto.NewProjectId.Value;
             }
 
-            if (existingLead.PhoneNumber != updateLeadDto.PhoneNumber)
-            {
-                var duplicateLead = await dbContext.Leads
-                    .Include(_ => _.Project)
-                    .FirstOrDefaultAsync(_ => _.PhoneNumber == updateLeadDto.PhoneNumber && _.Id != updateLeadDto.Id);
-                if (duplicateLead != null)
-                {
-                    throw new Exception($"Lead with phone number {updateLeadDto.PhoneNumber} already exists! in {duplicateLead.Project.Name}");
-                }
-            }
-
-            existingLead.Name = updateLeadDto.Name;
-            existingLead.PhoneNumber = updateLeadDto.PhoneNumber;
-            existingLead.ChannelId = updateLeadDto.ChannelId;
-            if (updateLeadDto.ProjectId.HasValue)
-            {
-                existingLead.ProjectId = updateLeadDto.ProjectId.Value;
-            }
-            existingLead.Budget = updateLeadDto.Budget;
-            existingLead.EmployeeId = updateLeadDto.EmployeeId;
-            existingLead.Status = updateLeadDto.Status;
-            existingLead.TypeLead = updateLeadDto.TypeLead;
-
-            existingLead.Updated = DateTime.UtcNow;
+            lead.Updated = DateTime.UtcNow;
 
             await dbContext.SaveChangesAsync();
         }

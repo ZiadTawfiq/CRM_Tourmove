@@ -21,6 +21,27 @@ namespace CustomerRelationshipManagement
                    
                 })
                 .IsUnique();
+            modelBuilder.Entity<Group>()
+                .HasMany(g => g.Projects)
+                .WithOne(p => p.Group)
+                .HasForeignKey(p => p.GroupId);
+
+            modelBuilder.Entity<ProjectLead>()
+                .HasKey(pl => new { pl.ProjectId, pl.LeadId });
+            modelBuilder.Entity<ProjectLead>()
+                .HasOne(pl => pl.Project)
+                .WithMany(p => p.projectLeads)
+                .HasForeignKey(pl => pl.ProjectId);
+            modelBuilder.Entity<ProjectLead>()
+                .HasOne(pl => pl.Lead)
+                .WithMany(l => l.ProjectLeads)
+                .HasForeignKey(pl => pl.LeadId); 
+                
+
+
+
+
+
 
             modelBuilder.ApplyConfigurationsFromAssembly(
                 typeof(AppDbContext).Assembly);
@@ -32,6 +53,7 @@ namespace CustomerRelationshipManagement
         public DbSet<Owner> Owners { get; set; }
         public DbSet<Lead> Leads { get; set; }
         public DbSet<LeadHistory> LeadHistories { get; set; }
+        public DbSet<Group> Groups { get; set; }
 
     
 

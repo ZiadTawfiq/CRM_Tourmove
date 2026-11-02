@@ -10,5 +10,6 @@ namespace CustomerRelationshipManagement.Repositories
         Task DeleteAsync(int id);
         Task<Project?> GetByIdAsync(int id);
         Task<IEnumerable<Project>> GetAllAsync();
+        Task<IEnumerable<Project>> GetProjectsByGroupIdAsync(int groupId);
     }
 }

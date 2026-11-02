@@ -24,6 +24,7 @@ namespace CustomerRelationshipManagement.Dtos
 
     public class CreateLeadDto
     {
+     
         public string Name { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public int ProjectId { get; set; }
@@ -32,6 +33,7 @@ namespace CustomerRelationshipManagement.Dtos
         public decimal? Budget { get; set; }
         public Status Status { get; set; } = Status.FreshLead;
         public TypeLead TypeLead { get; set; }
+
     }
 
     public class UpdateLeadDto
@@ -39,11 +41,17 @@ namespace CustomerRelationshipManagement.Dtos
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
-        public int? ProjectId { get; set; }
+        public int? OldProjectId { get; set; }
+        public int? NewProjectId { get; set; }
         public string? EmployeeId { get; set; }
         public int? ChannelId { get; set; }
         public decimal? Budget { get; set; }
-        public Status Status { get; set; }
         public TypeLead TypeLead { get; set; }
+    }
+    public class UpdateLeadStatusDto
+    {
+        public int LeadId { get; set; }
+        public Status Status { get; set; }
+        public int? CancellationReasonId { get; set; }
     }
 }
