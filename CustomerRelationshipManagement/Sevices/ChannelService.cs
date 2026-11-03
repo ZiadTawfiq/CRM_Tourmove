@@ -9,7 +9,8 @@ namespace CustomerRelationshipManagement.Sevices
         public async Task<IEnumerable<ChannelDto>> GetAllAsync()
         {
             var channels = await channelRepository.GetAllAsync();
-            return channels.Select(MapToDto(channels));
+            return channels.Select(MapToDto);
+        
         }
 
         public async Task<ChannelDto?> GetByIdAsync(int id)
@@ -19,7 +20,7 @@ namespace CustomerRelationshipManagement.Sevices
             {
                 return null;
             }
-            return channel is null ? null : MapToDto(channel)
+            return channel is null ? null : MapToDto(channel);
         
         }
 
@@ -55,9 +56,9 @@ namespace CustomerRelationshipManagement.Sevices
             return new ChannelDto
             {
                 Id = channel.Id,
-                LeadsCount =  channel.Leads.count,
+                LeadsCount = channel.Leads.Count(),
                 Name = channel.Name
-            }
+            };
         }
     }
 }

@@ -45,6 +45,7 @@ namespace CustomerRelationshipManagement.Entities
         public DateTime? ReservationDate { get; set; }
 
         public DateTime? CancellationDate { get; set; }
+        public DateTime? FollowUpDate { get; set; }
 
         // Cancellation Reason
         public int? CancellationReasonId { get; set; }
@@ -53,6 +54,9 @@ namespace CustomerRelationshipManagement.Entities
 
         // Duplicate Tracking
         public bool IsDuplicated { get; set; } = false;
+
+        public ICollection<LeadGroup> LeadGroups { get; set; }
+            = new List<LeadGroup>();
     }
     
 }

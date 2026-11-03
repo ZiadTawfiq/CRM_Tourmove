@@ -10,5 +10,10 @@ namespace CustomerRelationshipManagement.Repositories
         Task DeleteAsync(int id);
         Task<Lead?> GetByIdAsync(int id);
         Task<IEnumerable<Lead>> GetAllAsync();
+        Task<List<Lead>> SearchByPhoneNumber(string phoneNumber);
+        Task<List<Lead>> GetLeadsByIdsAsync(List<int> leadIds);
+        Task SaveChangesAsync();
+        Task<Lead?> GetLeadByPhoneNumberAndGroupId(string phoneNumber, int groupId);
+
     }
 }

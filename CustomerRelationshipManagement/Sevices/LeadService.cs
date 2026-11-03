@@ -1,24 +1,29 @@
 using CustomerRelationshipManagement.Dtos;
 using CustomerRelationshipManagement.Entities;
+using CustomerRelationshipManagement.LeadStatusHandler;
 using CustomerRelationshipManagement.Repositories;
 
 namespace CustomerRelationshipManagement.Sevices
 {
-    public class LeadService(ILeadRepository repository) : ILeadService
+    public class LeadService(ILeadRepository repository , IEnumerable<ILeadStatusHandler> statusHandlers) : ILeadService
     {
-        public Task AddActionToLead(ActionDto actionDto)
-        {
-            throw new NotImplementedException();
-        }
+        private readonly IEnumerable<ILeadStatusHandler> _statusHandlers = statusHandlers;
+      
 
-        public Task AssignLeadToSalesRep(int leadId, int salesRepId)
+        public async Task AssignLeadsToSalesRep(List<int> leadIds, int salesRepId)
         {
-            throw new NotImplementedException();
+            var leads = await repository.GetLeadsByIdsAsync(leadIds);
+
+            foreach (var lead in leads)
+            {
+                lead.EmployeeId = salesRepId.ToString();
+            }
+            await repository.SaveChangesAsync();
         }
 
         public Task<LeadDto> CreateAsync(CreateLeadDto createLeadDto)
         {
-            throw new NotImplementedException();
+           
         }
 
         public async Task DeleteAsync(int id)
@@ -58,9 +63,11 @@ namespace CustomerRelationshipManagement.Sevices
             throw new NotImplementedException();
         }
 
-        public Task<List<LeadDto>> SearchByPhoneNumber(string phoneNumber)
+        public async Task<List<LeadDto>> SearchByPhoneNumber(string phoneNumber)
         {
-            throw new NotImplementedException();
+            var leads = await  repository.SearchByPhoneNumber(phoneNumber);
+           
+            return leads.Select(MapToDto).ToList();
         }
 
         public async Task UpdateAsync(UpdateLeadDto updateLeadDto)
@@ -73,32 +80,39 @@ namespace CustomerRelationshipManagement.Sevices
             await repository.UpdateAsync(updateLeadDto);
         }
 
-        public async Task UpdateLeadStatus(int leadId , Status status)
+        public async Task UpdateLeadStatus(int leadId , Status status, string? notes = null)
         {
            var lead = await repository.GetByIdAsync(leadId);
             if (lead == null)
             {
                 throw new Exception($"Lead with ID {leadId} not found.");
             }
-           
-            
-            
+            var statusHandler = _statusHandlers.FirstOrDefault(h => h.status == status);
+            if (statusHandler == null)
+            {
+                throw new Exception($"No handler found for status {status}.");
+            }
+            await statusHandler.HandleAsync(lead, notes);
+            await repository.SaveChangesAsync();
+
         }
         private static LeadDto MapToDto(Lead lead)
-        {
+        {   
+            
             return new LeadDto
             {
                 Id = lead.Id,
                 Name = lead.Name,
                 PhoneNumber = lead.PhoneNumber,
                 Status = lead.Status,
-                ProjectName = lead.Project.Name,
-                ChannelName = lead.Channel.Name,
-                EmployeeName = lead.Employee?.FullName,
+                ProjectNames = lead.ProjectLeads
+                .Select(lp => lp.Project.Name)
+                .ToList(),
+                ChannelName = lead.Channel?.Name,
+                EmployeeName = lead.Employee?.Name,
                 Budget = lead.Budget,
                 TypeLead = lead.TypeLead,
                 Created = lead.Created,
-                Updated = lead.Updated,
 
             };
         }

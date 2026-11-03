@@ -8,7 +8,7 @@ namespace CustomerRelationshipManagement.Dtos
         public string Name { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public int ProjectId { get; set; }
-        public string? ProjectName { get; set; }
+        public List<string> ProjectNames { get; set; } = new List<string>();
         public string? EmployeeId { get; set; }
         public string? EmployeeName { get; set; }
         public int? ChannelId { get; set; }

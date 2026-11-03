@@ -43,6 +43,36 @@ namespace CustomerRelationshipManagement.Repositories
             return lead;
         }
 
+        public async Task<List<Lead>> GetLeadsByIdsAsync(List<int> leadIds)
+        {
+           var leads = await dbContext.Leads.Where(l => leadIds.Contains(l.Id)).ToListAsync();
+           return leads;
+        }
+
+        public async Task<Lead?> GetLeadByPhoneNumberAndGroupId(
+            string phoneNumber, int groupId)
+         {
+
+               return await dbContext.Leads
+               .Include(l => l.LeadGroups)
+               .FirstOrDefaultAsync(l =>
+               l.PhoneNumber == phoneNumber &&
+               l.LeadGroups.Any(lg => lg.GroupId == groupId));
+         }
+
+        public async Task SaveChangesAsync()
+        {
+            await dbContext.SaveChangesAsync();
+        }
+
+        public async Task<List<Lead>> SearchByPhoneNumber(string phoneNumber)
+        {
+            var leads = await dbContext.Leads
+                .Where(l => l.PhoneNumber.Contains(phoneNumber))
+                .ToListAsync();
+            return leads;
+        }
+
         public async Task UpdateAsync(UpdateLeadDto dto)
         {
             var lead = await dbContext.Leads

@@ -14,13 +14,17 @@ namespace CustomerRelationshipManagement
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Lead>()
-                .HasIndex(l => new 
-                {
-                    l.PhoneNumber,
-                   
-                })
-                .IsUnique();
+          
+            modelBuilder.Entity<LeadGroup>()
+                .HasOne(lg => lg.Lead)
+                .WithMany(l => l.LeadGroups)
+                .HasForeignKey(lg => lg.LeadId);
+            modelBuilder.Entity<LeadGroup>()
+                .HasOne(lg => lg.Group)
+                .WithMany(g => g.LeadGroups)
+                .HasForeignKey(lg => lg.GroupId);
+
+
             modelBuilder.Entity<Group>()
                 .HasMany(g => g.Projects)
                 .WithOne(p => p.Group)
@@ -30,7 +34,7 @@ namespace CustomerRelationshipManagement
                 .HasKey(pl => new { pl.ProjectId, pl.LeadId });
             modelBuilder.Entity<ProjectLead>()
                 .HasOne(pl => pl.Project)
-                .WithMany(p => p.projectLeads)
+                .WithMany(p => p.ProjectLeads)
                 .HasForeignKey(pl => pl.ProjectId);
             modelBuilder.Entity<ProjectLead>()
                 .HasOne(pl => pl.Lead)

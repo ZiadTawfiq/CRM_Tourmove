@@ -5,6 +5,6 @@ namespace CustomerRelationshipManagement.LeadStatusHandler
     public interface ILeadStatusHandler
     {
         Status status { get; }
-        Task HandleAsync(Lead lead); 
+        Task HandleAsync(Lead lead, string commentText); 
     }
 }
