@@ -8,7 +8,7 @@ public class Comment
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    public DateTime? LastUpdated { get; set; }
+    public DateTime? LastUpdated { get; set; } = DateTime.UtcNow;
     public int EmployeeId { get; set; }
     public Employee Employee { get; set; }
 

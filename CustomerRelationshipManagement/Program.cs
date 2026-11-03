@@ -1,3 +1,4 @@
+using CustomerRelationshipManagement.LeadStatusHandler;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,10 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
+// DI
+builder.Services.AddScoped<ILeadStatusHandler, CancellationStatusHandler>();
+builder.Services.AddScoped<ILeadStatusHandler, ReservationStatusHandler>();
+builder.Services.AddScoped<ILeadStatusHandler, OrientationStatusHandler>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

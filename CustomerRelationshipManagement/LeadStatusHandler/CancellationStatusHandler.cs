@@ -14,6 +14,7 @@ namespace CustomerRelationshipManagement.LeadStatusHandler
                 throw new ArgumentException("Cancellation reason is required for cancellation status.");
             }
             lead.CancellationDate = DateTime.UtcNow;
+            lead.Status = status;
 
             return Task.CompletedTask;
         }
