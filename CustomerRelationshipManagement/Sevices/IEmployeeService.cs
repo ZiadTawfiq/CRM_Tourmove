@@ -11,5 +11,6 @@ namespace CustomerRelationshipManagement.Sevices
         Task UpdateAsync(UpdateEmployeeDto updateEmployeeDto);
         Task DeleteAsync(string id);
         Task<IEnumerable<EmployeeDto>> GetByRoleAsync(Role role);
+        Task<EmployeeDto> GetCurrentUserAsync();
     }
 }

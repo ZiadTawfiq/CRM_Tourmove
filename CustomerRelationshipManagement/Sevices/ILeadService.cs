@@ -7,7 +7,7 @@ namespace CustomerRelationshipManagement.Sevices
     {
         Task<IEnumerable<LeadDto>> GetAllAsync();
         Task<LeadDto?> GetByIdAsync(int id);
-        Task<LeadDto> CreateAsync(CreateLeadDto createLeadDto);
+        Task<LeadDto> CreateAsync(CreateLeadDto createLeadDto , int groupId);
         Task UpdateAsync(UpdateLeadDto updateLeadDto);
         Task DeleteAsync(int id);
         Task AssignLeadsToSalesRep(List<int> leadIds, int salesRepId);

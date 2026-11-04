@@ -5,10 +5,10 @@ using CustomerRelationshipManagement.Repositories;
 
 namespace CustomerRelationshipManagement.Sevices
 {
-    public class LeadService(ILeadRepository repository , IEnumerable<ILeadStatusHandler> statusHandlers) : ILeadService
+    public class LeadService(ILeadRepository repository, IEnumerable<ILeadStatusHandler> statusHandlers, IEmployeeService employeeService) : ILeadService
     {
         private readonly IEnumerable<ILeadStatusHandler> _statusHandlers = statusHandlers;
-      
+
 
         public async Task AssignLeadsToSalesRep(List<int> leadIds, int salesRepId)
         {
@@ -20,12 +20,71 @@ namespace CustomerRelationshipManagement.Sevices
             }
             await repository.SaveChangesAsync();
         }
-
-        public Task<LeadDto> CreateAsync(CreateLeadDto createLeadDto)
+        public async Task<LeadDto> CreateAsync(
+            CreateLeadDto createLeadDto,
+            int groupId)
         {
-           
-        }
+            var lead = await repository.GetLeadByPhoneNumberAndGroupId(
+                createLeadDto.PhoneNumber, groupId);
 
+            var loginUser = await employeeService.GetCurrentUserAsync();
+
+            var allowDuplicate = false;
+
+            if (loginUser.Role == Role.Admin)
+            {
+                allowDuplicate = true;
+            }
+            else if (loginUser.Role == Role.TeamLeader)
+            {
+                if (loginUser.GroupId != groupId)
+                    throw new UnauthorizedAccessException();
+
+                allowDuplicate = true;
+            }
+
+            if (lead != null && !allowDuplicate)
+            {
+                lead.IsDuplicated = true;
+                await repository.SaveChangesAsync();
+
+                throw new Exception(
+                    "A lead with this phone number already exists in the specified group.");
+            }
+            var newLead = new Lead
+            {
+                Name = createLeadDto.Name,
+                PhoneNumber = createLeadDto.PhoneNumber,
+                EmployeeId = createLeadDto.EmployeeId,
+                ChannelId = createLeadDto.ChannelId,
+                Budget = createLeadDto.Budget,
+                Status = Status.FreshLead,
+                TypeLead = createLeadDto.TypeLead,
+                Created = DateTime.UtcNow,
+
+                LeadGroups = new List<LeadGroup>
+                {
+                    new LeadGroup
+                    {
+                        GroupId = groupId,
+                        PhoneNumber = createLeadDto.PhoneNumber
+                    }
+                },
+
+                ProjectLeads = new List<ProjectLead>
+                {
+                    new ProjectLead
+                    {
+                        ProjectId = createLeadDto.ProjectId,
+                       
+
+                        
+                    }
+                }
+            };
+            await repository.CreateAsync(newLead);
+            return MapToDto(newLead);
+        }
         public async Task DeleteAsync(int id)
         {
             await repository.DeleteAsync(id);
@@ -43,7 +102,7 @@ namespace CustomerRelationshipManagement.Sevices
 
         public async Task<IEnumerable<LeadDto>> GetAllAsync()
         {
-           var leads = await repository.GetAllAsync();
+            var leads = await repository.GetAllAsync();
             return leads.Select(MapToDto);
         }
 
@@ -65,8 +124,8 @@ namespace CustomerRelationshipManagement.Sevices
 
         public async Task<List<LeadDto>> SearchByPhoneNumber(string phoneNumber)
         {
-            var leads = await  repository.SearchByPhoneNumber(phoneNumber);
-           
+            var leads = await repository.SearchByPhoneNumber(phoneNumber);
+
             return leads.Select(MapToDto).ToList();
         }
 
@@ -80,9 +139,9 @@ namespace CustomerRelationshipManagement.Sevices
             await repository.UpdateAsync(updateLeadDto);
         }
 
-        public async Task UpdateLeadStatus(int leadId , Status status, string? notes = null)
+        public async Task UpdateLeadStatus(int leadId, Status status, string? notes = null)
         {
-           var lead = await repository.GetByIdAsync(leadId);
+            var lead = await repository.GetByIdAsync(leadId);
             if (lead == null)
             {
                 throw new Exception($"Lead with ID {leadId} not found.");
@@ -97,8 +156,8 @@ namespace CustomerRelationshipManagement.Sevices
 
         }
         private static LeadDto MapToDto(Lead lead)
-        {   
-            
+        {
+
             return new LeadDto
             {
                 Id = lead.Id,

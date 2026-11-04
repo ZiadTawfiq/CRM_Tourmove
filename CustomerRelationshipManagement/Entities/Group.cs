@@ -7,5 +7,6 @@
         public List<Project> Projects { get; set; } = new List<Project>();
         public ICollection<LeadGroup> LeadGroups { get; set; }
                 = new List<LeadGroup>();
+        public List<Employee> Employees { get; set; } = new List<Employee>(); 
     }
 }

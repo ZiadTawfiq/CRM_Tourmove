@@ -8,10 +8,7 @@ namespace CustomerRelationshipManagement.Repositories
     {
         public async Task CreateAsync(Lead lead)
         {
-
-          
-            lead.Status = Status.FreshLead;
-            lead.Created = DateTime.UtcNow;
+  
             dbContext.Leads.Add(lead);
             await dbContext.SaveChangesAsync();
         }

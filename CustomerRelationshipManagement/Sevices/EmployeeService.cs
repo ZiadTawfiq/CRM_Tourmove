@@ -2,12 +2,13 @@ using CustomerRelationshipManagement.Dtos;
 using CustomerRelationshipManagement.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace CustomerRelationshipManagement.Sevices
 {
     public class EmployeeService(
         UserManager<Employee> userManager,
-        RoleManager<IdentityRole> roleManager) : IEmployeeService
+        RoleManager<IdentityRole> roleManager, IHttpContextAccessor httpContextAccessor) : IEmployeeService
     {
         public async Task<IEnumerable<EmployeeDto>> GetAllAsync()
         {
@@ -40,7 +41,7 @@ namespace CustomerRelationshipManagement.Sevices
             var employee = new Employee
             {
                 Email = createEmployeeDto.Email,
-                FullName = createEmployeeDto.FullName,
+                Name = createEmployeeDto.FullName,
             };
             var CreateResult = await userManager.CreateAsync(employee, createEmployeeDto.Password);
             var roleName = createEmployeeDto.Role.ToString();
@@ -61,7 +62,7 @@ namespace CustomerRelationshipManagement.Sevices
                 throw new KeyNotFoundException($"Employee with id {updateEmployeeDto.Id} not found");
             }
 
-            employee.FullName = updateEmployeeDto.FullName;
+            employee.Name = updateEmployeeDto.FullName;
             employee.Email = updateEmployeeDto.Email;
             employee.UserName = updateEmployeeDto.Email;
 
@@ -116,10 +117,27 @@ namespace CustomerRelationshipManagement.Sevices
             return new EmployeeDto
             {
                 Id = employee.Id,
-                FullName = employee.FullName,
+                FullName = employee.Name,
                 Email = employee.Email ?? string.Empty,
-                Role = role != null ? Enum.Parse<Role>(role) : null
-            };
+                Role = role != null ? Enum.Parse<Role>(role) : null,
+                GroupId = employee.GroupId
+            }; 
+        }
+
+        public async Task<EmployeeDto> GetCurrentUserAsync()
+        {
+            var userId = httpContextAccessor.HttpContext?
+                     .User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                throw new KeyNotFoundException($"{userId} not found");
+            }
+            var employee = await userManager.FindByIdAsync(userId); 
+            if (employee == null)
+            {
+                throw new KeyNotFoundException($"Employee with id {userId} not found");
+            }
+            return MapToDto(employee, (await userManager.GetRolesAsync(employee)).FirstOrDefault());
         }
     }
 }
