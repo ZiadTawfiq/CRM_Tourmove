@@ -8,6 +8,7 @@ namespace CustomerRelationshipManagement.Sevices
     public class LeadService(ILeadRepository repository, IEnumerable<ILeadStatusHandler> statusHandlers, IEmployeeService employeeService) : ILeadService
     {
         private readonly IEnumerable<ILeadStatusHandler> _statusHandlers = statusHandlers;
+        private static readonly Dictionary<Lead, List<LeadDuplicate>> _duplicateLeads = new();
 
 
         public async Task AssignLeadsToSalesRep(List<int> leadIds, int salesRepId)
@@ -27,6 +28,7 @@ namespace CustomerRelationshipManagement.Sevices
             var lead = await repository.GetLeadByPhoneNumberAndGroupId(
                 createLeadDto.PhoneNumber, groupId);
 
+            
             var loginUser = await employeeService.GetCurrentUserAsync();
 
             var allowDuplicate = false;
@@ -34,6 +36,7 @@ namespace CustomerRelationshipManagement.Sevices
             if (loginUser.Role == Role.Admin)
             {
                 allowDuplicate = true;
+                
             }
             else if (loginUser.Role == Role.TeamLeader)
             {
@@ -42,15 +45,25 @@ namespace CustomerRelationshipManagement.Sevices
 
                 allowDuplicate = true;
             }
+            if (loginUser.Role == Role.SalesRep)
+            {
+                if (loginUser.GroupId != groupId)
+                {
+                    allowDuplicate = true;
 
+                }
+                    
+            }
             if (lead != null && !allowDuplicate)
             {
                 lead.IsDuplicated = true;
+
                 await repository.SaveChangesAsync();
 
                 throw new Exception(
                     "A lead with this phone number already exists in the specified group.");
             }
+           
             var newLead = new Lead
             {
                 Name = createLeadDto.Name,
@@ -90,9 +103,10 @@ namespace CustomerRelationshipManagement.Sevices
             await repository.DeleteAsync(id);
         }
 
-        public Task DuplicateLead(int leadId)
+        public async Task DuplicateLead()
         {
-            throw new NotImplementedException();
+            
+
         }
 
         public Task<List<LeadDto>> FilterLeads(LeadFilterDto filterDto)
@@ -110,11 +124,6 @@ namespace CustomerRelationshipManagement.Sevices
         {
             var lead = await repository.GetByIdAsync(id);
             return lead != null ? MapToDto(lead) : null;
-        }
-
-        public Task<List<CommentDto>> GetCommentsForLead(int leadId)
-        {
-            throw new NotImplementedException();
         }
 
         public Task<List<LeadDto>> GetLeadsThatSalesTriedToDublicateByProject(List<int> ProjectIds)
@@ -139,7 +148,7 @@ namespace CustomerRelationshipManagement.Sevices
             await repository.UpdateAsync(updateLeadDto);
         }
 
-        public async Task UpdateLeadStatus(int leadId, Status status, string? notes = null)
+        public async Task UpdateLeadStatus(int leadId, Status status, CreateCommentDto notes)
         {
             var lead = await repository.GetByIdAsync(leadId);
             if (lead == null)

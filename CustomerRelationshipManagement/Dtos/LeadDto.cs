@@ -29,6 +29,7 @@ namespace CustomerRelationshipManagement.Dtos
         public string PhoneNumber { get; set; } = string.Empty;
         public int ProjectId { get; set; }
         public string? EmployeeId { get; set; }
+        public int? groupId { get; set; }
         public int? ChannelId { get; set; }
         public decimal? Budget { get; set; }
         public Status Status { get; set; } = Status.FreshLead;

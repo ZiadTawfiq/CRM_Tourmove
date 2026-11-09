@@ -8,7 +8,7 @@ namespace CustomerRelationshipManagement.Sevices
         Task<CommentDto?> GetByIdAsync(int id);
         Task<IEnumerable<CommentDto>> GetByLeadIdAsync(int leadId);
         Task<CommentDto> CreateAsync(CreateCommentDto createCommentDto);
-        Task UpdateAsync(UpdateCommentDto updateCommentDto);
         Task DeleteAsync(int id);
+        Task<IEnumerable<CommentDto>> GetCommentsByLeadIdAsync(int leadId);
     }
 }

@@ -58,8 +58,10 @@ namespace CustomerRelationshipManagement
         public DbSet<Lead> Leads { get; set; }
         public DbSet<LeadHistory> LeadHistories { get; set; }
         public DbSet<Group> Groups { get; set; }
+        public DbSet<LeadGroup> LeadGroups { get; set; }
+        public DbSet<LeadDuplicate> LeadDuplicates { get; set; }
 
-    
+
 
 
     }

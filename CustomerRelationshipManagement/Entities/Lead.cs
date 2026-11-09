@@ -57,6 +57,8 @@ namespace CustomerRelationshipManagement.Entities
 
         public ICollection<LeadGroup> LeadGroups { get; set; }
             = new List<LeadGroup>();
+        public ICollection<LeadDuplicate> LeadDuplicates { get; set; }
+            = new List<LeadDuplicate>();
     }
     
 }

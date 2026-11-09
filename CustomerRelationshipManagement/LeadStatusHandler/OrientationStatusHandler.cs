@@ -1,37 +1,26 @@
-﻿using CustomerRelationshipManagement.Entities;
+﻿using CustomerRelationshipManagement.Dtos;
+using CustomerRelationshipManagement.Entities;
+using CustomerRelationshipManagement.Sevices;
 
 namespace CustomerRelationshipManagement.LeadStatusHandler
 {
-    public class OrientationStatusHandler : ILeadStatusHandler
+    public class OrientationStatusHandler(ICommentService commentService) : ILeadStatusHandler
     {
         public Status status => Status.Orientation;
 
-        public Task HandleAsync(Lead lead, string commentText)
+        public async Task HandleAsync(Lead lead, CreateCommentDto createCommentDto)
         {
 
             if (lead.OrientationDate == null)
             {
                 lead.OrientationDate = DateTime.UtcNow;
             }
-            if (!string.IsNullOrEmpty(commentText))
-            {
-
-                var comment = new Comment
-                {
-                    LeadId = lead.Id,
-                    EmployeeId = lead.EmployeeId,
-                    Text = commentText,
-                    CreatedAt = DateTime.UtcNow
-                };
-
-
-            }
-
             lead.Status = status;
-            return Task.CompletedTask;
+
+            await commentService.CreateAsync(createCommentDto);
         }
 
       
 
     }
-}
+}       

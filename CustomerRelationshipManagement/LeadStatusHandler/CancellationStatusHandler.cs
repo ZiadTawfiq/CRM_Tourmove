@@ -1,12 +1,14 @@
-﻿using CustomerRelationshipManagement.Entities;
+﻿using CustomerRelationshipManagement.Dtos;
+using CustomerRelationshipManagement.Entities;
+using CustomerRelationshipManagement.Sevices;
 
 namespace CustomerRelationshipManagement.LeadStatusHandler
 {
-    public class CancellationStatusHandler : ILeadStatusHandler
+    public class CancellationStatusHandler(ICommentService commentService) : ILeadStatusHandler
     {
         public Status status => Status.Cancellation;
 
-        public Task HandleAsync(Lead lead)
+        public async Task HandleAsync(Lead lead, CreateCommentDto createCommentDto)
         {
 
             if (lead.CancellationReasonId == null)
@@ -15,8 +17,8 @@ namespace CustomerRelationshipManagement.LeadStatusHandler
             }
             lead.CancellationDate = DateTime.UtcNow;
             lead.Status = status;
+            await commentService.CreateAsync(createCommentDto);
 
-            return Task.CompletedTask;
         }
     }
 }

@@ -26,26 +26,25 @@ namespace CustomerRelationshipManagement.Sevices
 
         public async Task<CommentDto> CreateAsync(CreateCommentDto createCommentDto)
         {
-            var comment = new Comment();
-           
-
-            if (int.TryParse(createCommentDto.EmployeeId, out var empId))
+            if (string.IsNullOrEmpty(createCommentDto.Text))
             {
-                comment.EmployeeId = empId;
+                throw new ArgumentException("Comment text cannot be empty.");
             }
-            
-            comment.LeadId = createCommentDto.LeadId;
+            var comment = new Comment
+            {
+                Text = createCommentDto.Text,
+                EmployeeId = createCommentDto.EmployeeId,
+                CreatedAt = DateTime.UtcNow,
+                LeadId = createCommentDto.LeadId
+
+            };
            
             await commentRepository.CreateAsync(comment);
 
             return MapToDto(comment);
         }
 
-        public async Task UpdateAsync(UpdateCommentDto updateCommentDto)
-        {
-            await commentRepository.UpdateAsync(updateCommentDto);
-        }
-
+   
         public async Task DeleteAsync(int id)
         {
             await commentRepository.DeleteAsync(id);
@@ -58,11 +57,18 @@ namespace CustomerRelationshipManagement.Sevices
                 Id = comment.Id,
                 Text = comment.Text,
                 CreatedAt = comment.CreatedAt,
-                LastUpdated = comment.LastUpdated,
                 EmployeeId = comment.EmployeeId.ToString(),
                 EmployeeName = comment.Employee?.Name,
                 LeadId = comment.LeadId
             };
+        }
+
+        public async Task<IEnumerable<CommentDto>> GetCommentsByLeadIdAsync(int leadId)
+        {
+           
+            var comments = await commentRepository.GetByLeadIdAsync(leadId);
+            return comments.Select(MapToDto);
+
         }
     }
 }

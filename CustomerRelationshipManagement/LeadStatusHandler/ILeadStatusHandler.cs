@@ -1,10 +1,11 @@
-﻿using CustomerRelationshipManagement.Entities;
+﻿using CustomerRelationshipManagement.Dtos;
+using CustomerRelationshipManagement.Entities;
 
 namespace CustomerRelationshipManagement.LeadStatusHandler
 {
     public interface ILeadStatusHandler
     {
         Status status { get; }
-        Task HandleAsync(Lead lead, string commentText); 
+        Task HandleAsync(Lead lead, CreateCommentDto createCommentDto); 
     }
 }

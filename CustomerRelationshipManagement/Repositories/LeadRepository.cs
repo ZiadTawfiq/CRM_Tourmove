@@ -115,5 +115,12 @@ namespace CustomerRelationshipManagement.Repositories
 
             await dbContext.SaveChangesAsync();
         }
+
+        public Task<List<Comment>> GetCommentsForLead(int leadId)
+        {
+            return dbContext.Comments
+                .Where(c => c.LeadId == leadId)
+                .ToListAsync();
+        }
     }
 }

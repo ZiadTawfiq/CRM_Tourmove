@@ -47,18 +47,6 @@ namespace CustomerRelationshipManagement.Repositories
                 .ToListAsync();
         }
 
-        public async Task UpdateAsync(UpdateCommentDto updateCommentDto)
-        {
-            var existingComment = await dbContext.Comments.FindAsync(updateCommentDto.Id);
-            if (existingComment is null)
-            {
-                throw new KeyNotFoundException($"Comment with id {updateCommentDto.Id} not found");
-            }
-
-            existingComment.Text = updateCommentDto.Text;
-            existingComment.LastUpdated = DateTime.UtcNow;
-
-            await dbContext.SaveChangesAsync();
-        }
+      
     }
 }
