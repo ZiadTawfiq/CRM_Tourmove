@@ -16,5 +16,7 @@ namespace CustomerRelationshipManagement.Sevices
         Task<List<LeadDto>> SearchByPhoneNumber(string phoneNumber);
         Task<List<LeadDto>> GetLeadsThatSalesTriedToDublicateByProject(List<int> ProjectIds);
         Task UpdateLeadStatus(int leadId , Status status, CreateCommentDto notes);
+        Task SaveChangesAsync(); 
+
     }
 }
