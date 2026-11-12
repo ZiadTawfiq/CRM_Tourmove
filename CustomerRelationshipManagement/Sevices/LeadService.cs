@@ -184,5 +184,12 @@ namespace CustomerRelationshipManagement.Sevices
 
             };
         }
+
+        
+
+        public async Task SaveChangesAsync()
+        {
+          await repository.SaveChangesAsync();
+        }
     }
 }

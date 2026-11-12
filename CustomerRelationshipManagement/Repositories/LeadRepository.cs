@@ -122,5 +122,7 @@ namespace CustomerRelationshipManagement.Repositories
                 .Where(c => c.LeadId == leadId)
                 .ToListAsync();
         }
+
+      
     }
 }

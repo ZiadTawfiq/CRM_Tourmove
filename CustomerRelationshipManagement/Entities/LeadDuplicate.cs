@@ -20,3 +20,18 @@ public class LeadDuplicate
 
     public DuplicateStatus Status { get; set; }
 }
+
+public enum DuplicateStatus
+{
+        Pending,
+        Created,
+        Reassigned,
+}
+public enum DuplicateAction
+{
+    CreateNewLead,
+    ReassignToAnotherSalesRep,
+}
+
+
+

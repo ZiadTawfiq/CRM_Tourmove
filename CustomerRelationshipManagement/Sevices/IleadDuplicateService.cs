@@ -1,7 +1,8 @@
 ﻿namespace CustomerRelationshipManagement.Sevices
 {
-    public class IleadDuplicateService
+    public interface IleadDuplicateService
     {
-
+        Task DuplicateLead(int leadId);
+        Task ReviewDuplicateLead(int duplicateLeadId , DuplicateAction action , string NewSalesRepId);
     }
 }

@@ -20,6 +20,7 @@ namespace CustomerRelationshipManagement.Dtos
         public DateTime Updated { get; set; }
         public DateTime? Assigned { get; set; }
         public List<CommentDto>? Comments { get; set; }
+        public IEnumerable<object> LeadGroups { get; internal set; }
     }
 
     public class CreateLeadDto
