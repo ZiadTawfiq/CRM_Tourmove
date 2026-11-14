@@ -32,11 +32,14 @@ namespace CustomerRelationshipManagement.Repositories
 
         public async Task<Lead?> GetByIdAsync(int id)
         {
-            var lead = await dbContext.Leads.FirstOrDefaultAsync(_ => _.Id == id);
+            var lead = await dbContext.Leads
+                .Include(l => l.LeadGroups)
+                .Include(l => l.ProjectLeads)
+                .FirstOrDefaultAsync(l => l.Id == id);
+
             if (lead is null)
-            {
                 throw new KeyNotFoundException($"Lead with id {id} not found");
-            }
+
             return lead;
         }
 

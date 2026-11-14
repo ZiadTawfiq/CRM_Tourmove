@@ -5,10 +5,9 @@ using CustomerRelationshipManagement.Repositories;
 
 namespace CustomerRelationshipManagement.Sevices
 {
-    public class LeadService(ILeadRepository repository, IEnumerable<ILeadStatusHandler> statusHandlers, IEmployeeService employeeService) : ILeadService
+    public class LeadService(ILeadRepository repository, IEnumerable<ILeadStatusHandler> statusHandlers, IEmployeeService employeeService , IleadDuplicateService leadDuplicateService) : ILeadService
     {
         private readonly IEnumerable<ILeadStatusHandler> _statusHandlers = statusHandlers;
-        private static readonly Dictionary<Lead, List<LeadDuplicate>> _duplicateLeads = new();
 
 
         public async Task AssignLeadsToSalesRep(List<int> leadIds, int salesRepId)
@@ -128,7 +127,7 @@ namespace CustomerRelationshipManagement.Sevices
 
         public Task<List<LeadDto>> GetLeadsThatSalesTriedToDublicateByProject(List<int> ProjectIds)
         {
-            throw new NotImplementedException();
+           
         }
 
         public async Task<List<LeadDto>> SearchByPhoneNumber(string phoneNumber)

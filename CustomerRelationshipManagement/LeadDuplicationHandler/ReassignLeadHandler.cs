@@ -3,7 +3,7 @@ using CustomerRelationshipManagement.Sevices;
 
 namespace CustomerRelationshipManagement.LeadDuplicationHandler
 {
-    public class ReassignLeadHandler(ILeadDuplicateRepository leadDuplicateRepository, ILeadService leadService)
+    public class ReassignLeadHandler(ILeadDuplicateRepository leadDuplicateRepository, ILeadService leadService,IEmployeeService employeeService) : ILeadDuplicationHandler
     {
         public DuplicateAction Action => DuplicateAction.ReassignToAnotherSalesRep;
         public async Task HandleDuplicateLead(int duplicateLeadId, string newSalesRepId)
@@ -19,8 +19,15 @@ namespace CustomerRelationshipManagement.LeadDuplicationHandler
                     "Duplicate request already processed.");
 
             var leadId = duplicateLead.LeadId;
-
+           
+            var newSalesRep = await employeeService.GetByIdAsync(newSalesRepId);
+           
+            if (newSalesRep == null)
+            {
+                throw new Exception("New sales representative not found.");
+            }
             var lead = await leadService.GetByIdAsync(leadId);
+          
             if (lead == null)
             {
                 throw new Exception("Lead not found.");

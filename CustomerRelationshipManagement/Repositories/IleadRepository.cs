@@ -15,6 +15,7 @@ namespace CustomerRelationshipManagement.Repositories
         Task SaveChangesAsync();
         Task<Lead?> GetLeadByPhoneNumberAndGroupId(string phoneNumber, int groupId);
         Task<List<Comment>> GetCommentsForLead(int leadId);
+        Task<List<Lead>> FilterLeadsAsync(LeadFilterDto filterDto);
 
     }
 }

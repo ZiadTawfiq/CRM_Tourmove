@@ -9,6 +9,7 @@ namespace CustomerRelationshipManagement.Dtos
         public string PhoneNumber { get; set; } = string.Empty;
         public int ProjectId { get; set; }
         public List<string> ProjectNames { get; set; } = new List<string>();
+        public List<ProjectLead> ProjectLeads { get; set; } = new List<ProjectLead>();
         public string? EmployeeId { get; set; }
         public string? EmployeeName { get; set; }
         public int? ChannelId { get; set; }
@@ -20,7 +21,7 @@ namespace CustomerRelationshipManagement.Dtos
         public DateTime Updated { get; set; }
         public DateTime? Assigned { get; set; }
         public List<CommentDto>? Comments { get; set; }
-        public IEnumerable<object> LeadGroups { get; internal set; }
+        public IEnumerable<LeadGroup> LeadGroups { get; internal set; }
     }
 
     public class CreateLeadDto

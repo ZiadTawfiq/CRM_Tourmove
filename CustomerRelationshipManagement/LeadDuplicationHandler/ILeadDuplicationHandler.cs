@@ -2,6 +2,7 @@
 {
     public interface ILeadDuplicationHandler
     {
-        Task HandleDuplicateLead(int leadId, DuplicateAction action, string newSalesRepId);
+        public DuplicateAction Action { get; }
+        Task HandleDuplicateLead(int leadId,string newSalesRepId);
     }
 }

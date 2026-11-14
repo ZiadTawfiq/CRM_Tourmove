@@ -1,3 +1,4 @@
+using CustomerRelationshipManagement.LeadDuplicationHandler;
 using CustomerRelationshipManagement.LeadStatusHandler;
 using System.Text.Json.Serialization;
 
@@ -18,6 +19,8 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddScoped<ILeadStatusHandler, CancellationStatusHandler>();
 builder.Services.AddScoped<ILeadStatusHandler, ReservationStatusHandler>();
 builder.Services.AddScoped<ILeadStatusHandler, OrientationStatusHandler>();
+builder.Services.AddScoped<ILeadDuplicationHandler, ReassignLeadHandler>();
+builder.Services.AddScoped<ILeadDuplicationHandler, CreateNewleadHandelr>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

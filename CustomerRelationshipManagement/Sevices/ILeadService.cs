@@ -11,10 +11,9 @@ namespace CustomerRelationshipManagement.Sevices
         Task UpdateAsync(UpdateLeadDto updateLeadDto);
         Task DeleteAsync(int id);
         Task AssignLeadsToSalesRep(List<int> leadIds, int salesRepId);
-        Task DuplicateLead(int leadId);
         Task<List<LeadDto>> FilterLeads(LeadFilterDto filterDto);
         Task<List<LeadDto>> SearchByPhoneNumber(string phoneNumber);
-        Task<List<LeadDto>> GetLeadsThatSalesTriedToDublicateByProject(List<int> ProjectIds);
+        Task<List<LeadComparisonDto>> GetLeadsThatSalesTriedToDublicateByProject(List<int> ProjectIds ,DateTime? startDate, DateTime? endDate);
         Task UpdateLeadStatus(int leadId , Status status, CreateCommentDto notes);
         Task SaveChangesAsync(); 
 
