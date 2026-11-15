@@ -11,5 +11,6 @@ namespace CustomerRelationshipManagement.Entities
         public List<Project> Projects { get; set; } = new List<Project>();
         public int? GroupId { get; set; }
         public Group? Group { get; set; }
+        public List<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     }
 }

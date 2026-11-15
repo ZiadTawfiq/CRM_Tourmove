@@ -5,7 +5,7 @@ using CustomerRelationshipManagement.Repositories;
 
 namespace CustomerRelationshipManagement.Sevices
 {
-    public class LeadService(ILeadRepository repository, IEnumerable<ILeadStatusHandler> statusHandlers, IEmployeeService employeeService , IleadDuplicateService leadDuplicateService) : ILeadService
+    public class LeadService(ILeadRepository repository, IEnumerable<ILeadStatusHandler> statusHandlers, IEmployeeService employeeService ,IleadDuplicateService leadDuplicateService) : ILeadService
     {
         private readonly IEnumerable<ILeadStatusHandler> _statusHandlers = statusHandlers;
 
@@ -20,49 +20,62 @@ namespace CustomerRelationshipManagement.Sevices
             }
             await repository.SaveChangesAsync();
         }
+
         public async Task<LeadDto> CreateAsync(
             CreateLeadDto createLeadDto,
             int groupId)
         {
-            var lead = await repository.GetLeadByPhoneNumberAndGroupId(
-                createLeadDto.PhoneNumber, groupId);
-
-            
             var loginUser = await employeeService.GetCurrentUserAsync();
 
-            var allowDuplicate = false;
-
-            if (loginUser.Role == Role.Admin)
+            // Admin has full access. Other employees can only work
+            // within their own group.
+            if (loginUser.Role != Role.Admin &&
+                loginUser.GroupId != groupId)
             {
-                allowDuplicate = true;
-                
+                throw new UnauthorizedAccessException(
+                    "You are not allowed to access this group.");
             }
-            else if (loginUser.Role == Role.TeamLeader)
-            {
-                if (loginUser.GroupId != groupId)
-                    throw new UnauthorizedAccessException();
 
-                allowDuplicate = true;
-            }
-            if (loginUser.Role == Role.SalesRep)
+            // Check if the phone number exists in the requested group.
+            var existingLead = await repository.GetLeadByPhoneNumberAndGroupId(
+                createLeadDto.PhoneNumber, groupId);
+
+            // Duplicate found in the same group.
+            if (existingLead != null)
             {
-                if (loginUser.GroupId != groupId)
+                // SalesRep cannot create duplicate leads.
+                if (loginUser.Role == Role.SalesRep)
                 {
-                    allowDuplicate = true;
+                    await leadDuplicateService.DuplicateLead(existingLead.Id);
 
+                    throw new InvalidOperationException(
+                        "A lead with this phone number already exists in your group.");
                 }
-                    
-            }
-            if (lead != null && !allowDuplicate)
-            {
-                lead.IsDuplicated = true;
 
-                await repository.SaveChangesAsync();
+                // Admin and TeamLeader can review the duplicate.
+                if (loginUser.Role == Role.Admin ||
+                    loginUser.Role == Role.TeamLeader)
+                {
+                    // Create duplicate request and get its ID.
+                    var duplicateRequestId =
+                        await leadDuplicateService.DuplicateLead(existingLead.Id);
+                    if (createLeadDto.EmployeeId == null)
+                    {
+                        throw new InvalidOperationException(
+                            "Employee ID is required for reviewing duplicate leads.");
+                    }
+                    // Execute the selected action.
+                    await leadDuplicateService.ReviewDuplicateLead(
+                        duplicateRequestId,
+                        createLeadDto.Action,
+                        createLeadDto.EmployeeId);
 
-                throw new Exception(
-                    "A lead with this phone number already exists in the specified group.");
+                    throw new InvalidOperationException(
+                        "Duplicate lead has been processed.");
+                }
             }
-           
+
+            // No duplicate found in the requested group.
             var newLead = new Lead
             {
                 Name = createLeadDto.Name,
@@ -75,42 +88,38 @@ namespace CustomerRelationshipManagement.Sevices
                 Created = DateTime.UtcNow,
 
                 LeadGroups = new List<LeadGroup>
-                {
-                    new LeadGroup
-                    {
-                        GroupId = groupId,
-                        PhoneNumber = createLeadDto.PhoneNumber
-                    }
-                },
+        {
+            new LeadGroup
+            {
+                GroupId = groupId,
+                PhoneNumber = createLeadDto.PhoneNumber
+            }
+        },
 
                 ProjectLeads = new List<ProjectLead>
-                {
-                    new ProjectLead
-                    {
-                        ProjectId = createLeadDto.ProjectId,
-                       
-
-                        
-                    }
-                }
+        {
+            new ProjectLead
+            {
+                ProjectId = createLeadDto.ProjectId
+            }
+        }
             };
+
             await repository.CreateAsync(newLead);
+
             return MapToDto(newLead);
         }
+
         public async Task DeleteAsync(int id)
         {
             await repository.DeleteAsync(id);
         }
 
-        public async Task DuplicateLead()
-        {
-            
 
-        }
-
-        public Task<List<LeadDto>> FilterLeads(LeadFilterDto filterDto)
+        public async Task<List<LeadDto>> FilterLeads(LeadFilterDto filterDto)
         {
-            throw new NotImplementedException();
+            var leads = await repository.FilterLeadsAsync(filterDto);
+            return leads.Select(MapToDto).ToList();
         }
 
         public async Task<IEnumerable<LeadDto>> GetAllAsync()
@@ -125,9 +134,9 @@ namespace CustomerRelationshipManagement.Sevices
             return lead != null ? MapToDto(lead) : null;
         }
 
-        public Task<List<LeadDto>> GetLeadsThatSalesTriedToDublicateByProject(List<int> ProjectIds)
+        public async Task<List<LeadComparisonDto>> GetLeadsThatSalesTriedToDublicateByProject(List<int> ProjectIds, DateTime? startDate, DateTime? endDate)
         {
-           
+            return await leadDuplicateService.ListDuplicateLeadsByProjectIdsAsync(ProjectIds, startDate, endDate);
         }
 
         public async Task<List<LeadDto>> SearchByPhoneNumber(string phoneNumber)

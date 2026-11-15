@@ -126,6 +126,65 @@ namespace CustomerRelationshipManagement.Repositories
                 .ToListAsync();
         }
 
-      
+        public Task<List<Lead>> FilterLeadsAsync(LeadFilterDto filterDto)
+        {
+            var leadsQuery = dbContext.Leads.AsQueryable();
+            if (filterDto == null)
+            {
+                throw new ArgumentNullException(nameof(filterDto));
+            }
+            if (filterDto.CreatedFrom.HasValue && filterDto.CreatedTo.HasValue)
+            {
+                if (filterDto.CreatedFrom > filterDto.CreatedTo)
+                {
+                    throw new ArgumentException("CreatedFrom date cannot be later than CreatedTo date.");
+                }
+                leadsQuery = leadsQuery.Where(l => l.Created >= filterDto.CreatedFrom.Value && l.Created <= filterDto.CreatedTo.Value);
+            }
+            if (filterDto.AssignedFrom.HasValue && filterDto.AssignedTo.HasValue)
+            {
+                if (filterDto.AssignedFrom > filterDto.AssignedTo)
+                {
+                    throw new ArgumentException("AssignedFrom date cannot be later than AssignedTo date.");
+                }
+                leadsQuery = leadsQuery.Where(l => l.Assigned >= filterDto.AssignedFrom.Value && l.Assigned <= filterDto.AssignedTo.Value);
+            }
+            if (!string.IsNullOrEmpty(filterDto.PhoneNumber))
+            {
+                leadsQuery = leadsQuery.Where(l => l.PhoneNumber.Contains(filterDto.PhoneNumber));
+            }
+            if (filterDto.Status != null && filterDto.Status.Any())
+            {
+                leadsQuery = leadsQuery.Where(l => filterDto.Status.Contains(l.Status));
+            }
+            if (!string.IsNullOrWhiteSpace(filterDto.TypeLead))
+            {
+                if (Enum.TryParse<TypeLead>(
+                    filterDto.TypeLead,
+                    true,
+                    out var typeLead))
+                {
+                    leadsQuery = leadsQuery.Where(l => l.TypeLead == typeLead);
+                }
+                else
+                {
+                    throw new ArgumentException("Invalid TypeLead value.");
+                }
+            }
+            if (filterDto.ProjectId != null && filterDto.ProjectId.Any())
+            {
+                leadsQuery = leadsQuery.Where(l => l.ProjectLeads.Any(pl => filterDto.ProjectId.Contains(pl.ProjectId)));
+            }
+            if (filterDto.ChannelId != null && filterDto.ChannelId.Any())
+            {
+                leadsQuery = leadsQuery.Where(l => l.ChannelId.HasValue && filterDto.ChannelId.Contains(l.ChannelId.Value));
+            }
+            if (filterDto.EmployeeIds != null && filterDto.EmployeeIds.Any())
+            {
+                leadsQuery = leadsQuery.Where(l => filterDto.EmployeeIds.Contains(l.EmployeeId));
+            }
+
+            return leadsQuery.ToListAsync();
+        }
     }
 }

@@ -7,6 +7,7 @@ namespace CustomerRelationshipManagement.Dtos
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
+        
         public int ProjectId { get; set; }
         public List<string> ProjectNames { get; set; } = new List<string>();
         public List<ProjectLead> ProjectLeads { get; set; } = new List<ProjectLead>();
@@ -36,6 +37,9 @@ namespace CustomerRelationshipManagement.Dtos
         public decimal? Budget { get; set; }
         public Status Status { get; set; } = Status.FreshLead;
         public TypeLead TypeLead { get; set; }
+        public DuplicateAction Action { get; set; }
+     
+
 
     }
 

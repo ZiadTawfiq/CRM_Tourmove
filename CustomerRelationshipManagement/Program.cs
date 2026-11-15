@@ -1,3 +1,4 @@
+using CustomerRelationshipManagement.Entities;
 using CustomerRelationshipManagement.LeadDuplicationHandler;
 using CustomerRelationshipManagement.LeadStatusHandler;
 using System.Text.Json.Serialization;
@@ -21,6 +22,14 @@ builder.Services.AddScoped<ILeadStatusHandler, ReservationStatusHandler>();
 builder.Services.AddScoped<ILeadStatusHandler, OrientationStatusHandler>();
 builder.Services.AddScoped<ILeadDuplicationHandler, ReassignLeadHandler>();
 builder.Services.AddScoped<ILeadDuplicationHandler, CreateNewleadHandelr>();
+
+
+// Configure JWT settings
+
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection("Jwt"));
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

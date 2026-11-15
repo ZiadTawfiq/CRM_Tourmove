@@ -39,8 +39,14 @@ namespace CustomerRelationshipManagement
             modelBuilder.Entity<ProjectLead>()
                 .HasOne(pl => pl.Lead)
                 .WithMany(l => l.ProjectLeads)
-                .HasForeignKey(pl => pl.LeadId); 
-                
+                .HasForeignKey(pl => pl.LeadId);
+
+            modelBuilder.Entity<RefreshToken>()
+            .HasOne(rt => rt.User)
+            .WithMany(e => e.RefreshTokens)
+            .HasForeignKey(rt => rt.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
 
 
 
@@ -60,6 +66,9 @@ namespace CustomerRelationshipManagement
         public DbSet<Group> Groups { get; set; }
         public DbSet<LeadGroup> LeadGroups { get; set; }
         public DbSet<LeadDuplicate> LeadDuplicates { get; set; }
+        public DbSet<ProjectLead> ProjectLeads { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
 
 
 
