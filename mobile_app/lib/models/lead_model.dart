@@ -65,10 +65,10 @@ class LeadModel {
       projectName: json['projectName'],
       employeeId: json['employeeId']?.toString(),
       employeeName: json['employeeName'],
-      channelId: json['channelId'] is int ? json['channelId'] : int.tryParse(json['channelId'].toString() ?? ''),
+      channelId: json['channelId'] is int ? json['channelId'] : int.tryParse(json['channelId']?.toString() ?? ''),
       channelName: json['channelName'],
-      status: LeadStatus.fromId(json['status'] is int ? json['status'] : int.tryParse(json['status'].toString())),
-      typeLead: TypeLead.fromId(json['typeLead'] is int ? json['typeLead'] : int.tryParse(json['typeLead'].toString())),
+      status: LeadStatus.fromId(json['status'] is int ? json['status'] : int.tryParse(json['status']?.toString() ?? '1')),
+      typeLead: TypeLead.fromId(json['typeLead'] is int ? json['typeLead'] : int.tryParse(json['typeLead']?.toString() ?? '2')),
       isDuplicated: json['isDuplicated'] == true,
       cancellationReasonId: json['cancellationReasonId'] is int
           ? json['cancellationReasonId']
@@ -112,6 +112,7 @@ class LeadModel {
   }
 
   LeadModel copyWith({
+    int? id,
     String? name,
     String? phoneNumber,
     double? budget,
@@ -126,6 +127,8 @@ class LeadModel {
     bool? isDuplicated,
     int? cancellationReasonId,
     String? cancellationReason,
+    DateTime? created,
+    DateTime? updated,
     DateTime? assigned,
     DateTime? orientationDate,
     DateTime? reservationDate,
@@ -133,7 +136,7 @@ class LeadModel {
     List<CommentModel>? comments,
   }) {
     return LeadModel(
-      id: id,
+      id: id ?? this.id,
       name: name ?? this.name,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       budget: budget ?? this.budget,
@@ -148,13 +151,13 @@ class LeadModel {
       isDuplicated: isDuplicated ?? this.isDuplicated,
       cancellationReasonId: cancellationReasonId ?? this.cancellationReasonId,
       cancellationReason: cancellationReason ?? this.cancellationReason,
-      created: created,
-      updated: DateTime.now(),
+      created: created ?? this.created,
+      updated: updated ?? this.updated,
       assigned: assigned ?? this.assigned,
       orientationDate: orientationDate ?? this.orientationDate,
       reservationDate: reservationDate ?? this.reservationDate,
       cancellationDate: cancellationDate ?? this.cancellationDate,
-      comments: comments ?? this.comments,
+      comments: comments ?? List.from(this.comments),
     );
   }
 }

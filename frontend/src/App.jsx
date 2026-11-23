@@ -10,11 +10,12 @@ import AnalyticsView from './components/AnalyticsView';
 import ProjectsView from './components/ProjectsView';
 import TeamView from './components/TeamView';
 import SettingsView from './components/SettingsView';
+import MobileSimulatorView from './components/MobileSimulatorView';
 import { CRM_API } from './services/api';
 import { STATUS } from './types/crmConstants';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState('kanban'); // 'kanban', 'leads', 'dashboard', 'analytics', 'projects', 'team', 'settings'
+  const [currentView, setCurrentView] = useState('mobileDemo'); // Default to mobile demo for instant viewing
   const [theme, setTheme] = useState(() => localStorage.getItem('tourmove_theme') || 'light');
   const [leads, setLeads] = useState([]);
   const [projects, setProjects] = useState([]);
@@ -263,6 +264,20 @@ export default function App() {
             <TeamView
               employees={employees}
               leads={leads}
+            />
+          )}
+
+          {currentView === 'mobileDemo' && (
+            <MobileSimulatorView
+              leads={leads}
+              projects={projects}
+              channels={channels}
+              employees={employees}
+              onCreateLead={handleCreateLead}
+              onUpdateStatus={handleUpdateStatus}
+              onAssignEmployee={handleAssignEmployee}
+              onAddComment={handleAddComment}
+              duplicateCount={duplicateCount}
             />
           )}
 

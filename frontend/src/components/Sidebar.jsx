@@ -8,11 +8,13 @@ import {
   UserCheck, 
   Settings,
   Sparkles,
-  ShieldAlert
+  ShieldAlert,
+  Smartphone
 } from 'lucide-react';
 
 export default function Sidebar({ currentView, setCurrentView, duplicateCount }) {
   const menuItems = [
+    { id: 'mobileDemo', label: '📱 محاكي فلاتر (Flutter Demo)', icon: Smartphone, badge: 'جديد' },
     { id: 'dashboard', label: 'لوحة المؤشرات', icon: LayoutDashboard },
     { id: 'kanban', label: 'مسار المبيعات (كانبان)', icon: Kanban },
     { id: 'leads', label: 'إدارة العملاء (Leads)', icon: Users, badge: duplicateCount > 0 ? `${duplicateCount} مكرر` : null, badgeColor: 'bg-red-500' },

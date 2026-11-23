@@ -60,3 +60,38 @@ enum EmployeeRole {
     );
   }
 }
+
+enum DuplicateStatus {
+  pending(0, 'قيد المراجعة', Color(0xFFF59E0B)),
+  created(1, 'تم إنشاء عميل جديد', Color(0xFF10B981)),
+  reassigned(2, 'تم إعادة الإسناد للمندوب', Color(0xFF3B82F6));
+
+  final int id;
+  final String labelAr;
+  final Color color;
+
+  const DuplicateStatus(this.id, this.labelAr, this.color);
+
+  static DuplicateStatus fromId(dynamic val) {
+    if (val is int) {
+      return DuplicateStatus.values.firstWhere((s) => s.id == val, orElse: () => DuplicateStatus.pending);
+    }
+    if (val is String) {
+      final lower = val.toLowerCase();
+      if (lower.contains('create')) return DuplicateStatus.created;
+      if (lower.contains('reassign')) return DuplicateStatus.reassigned;
+    }
+    return DuplicateStatus.pending;
+  }
+}
+
+enum DuplicateAction {
+  createNewLead(0, 'إنشاء عميل جديد منفصل', 'CreateNewLead'),
+  reassignToAnotherSalesRep(1, 'إعادة إسناد العميل للمندوب الجديد', 'ReassignToAnotherSalesRep');
+
+  final int id;
+  final String labelAr;
+  final String actionName;
+
+  const DuplicateAction(this.id, this.labelAr, this.actionName);
+}

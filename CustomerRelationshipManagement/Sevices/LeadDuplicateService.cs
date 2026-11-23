@@ -1,28 +1,32 @@
-﻿using CustomerRelationshipManagement.Dtos;
+using CustomerRelationshipManagement.Dtos;
 using CustomerRelationshipManagement.LeadDuplicationHandler;
 using CustomerRelationshipManagement.Repositories;
 
 namespace CustomerRelationshipManagement.Sevices
 {
-    public class LeadDuplicateService(IEmployeeService employeeService, ILeadService leadService, ILeadDuplicateRepository leadDuplicateRepository) : IleadDuplicateService
+    public class LeadDuplicateService(
+        IEmployeeService employeeService,
+        ILeadRepository leadRepository,
+        ILeadDuplicateRepository leadDuplicateRepository,
+        IEnumerable<ILeadDuplicationHandler> duplicationHandlers) : IleadDuplicateService
     {
-        private readonly List<ILeadDuplicationHandler> _duplicationHandlers;
+        private readonly IEnumerable<ILeadDuplicationHandler> _duplicationHandlers = duplicationHandlers;
+
         public async Task<int> DuplicateLead(int leadId)
         {
             var user = await employeeService.GetCurrentUserAsync();
-            var lead = await leadService.GetByIdAsync(leadId);
+            var lead = await leadRepository.GetByIdAsync(leadId);
 
             var duplicateLead = new LeadDuplicate
             {
                 LeadId = leadId,
                 Status = DuplicateStatus.Pending,
-                AttemptedByEmployeeId = user.Id,
+                AttemptedByEmployeeId = user?.Id ?? "emp-101",
                 CreatedAt = DateTime.UtcNow
             };
 
             await leadDuplicateRepository.CreateAsync(duplicateLead);
             return duplicateLead.Id;
-
         }
 
         public async Task<List<LeadComparisonDto>> ListDuplicateLeadsByProjectIdsAsync(List<int> projectIds, DateTime? startDate , DateTime? endDate)

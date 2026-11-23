@@ -41,11 +41,31 @@ namespace CustomerRelationshipManagement
                 .WithMany(l => l.ProjectLeads)
                 .HasForeignKey(pl => pl.LeadId);
 
-            modelBuilder.Entity<RefreshToken>()
-            .HasOne(rt => rt.User)
-            .WithMany(e => e.RefreshTokens)
-            .HasForeignKey(rt => rt.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(rt => rt.Id);
+
+                entity.Property(rt => rt.TokenHash)
+                    .HasMaxLength(44)
+                    .IsRequired();
+
+                entity.HasIndex(rt => rt.TokenHash)
+                    .IsUnique();
+
+                entity.Property(rt => rt.FamilyId)
+                    .HasMaxLength(36)
+                    .IsRequired();
+
+                entity.HasIndex(rt => rt.FamilyId);
+
+                entity.Property(rt => rt.ReplaceedByTokenHash)
+                    .HasMaxLength(44);
+
+                entity.HasOne(rt => rt.User)
+                    .WithMany()
+                    .HasForeignKey(rt => rt.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
 
 
