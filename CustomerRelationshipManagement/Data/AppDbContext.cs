@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 
-namespace CustomerRelationshipManagement
+namespace CustomerRelationshipManagement.Data
 {
     public class AppDbContext : IdentityDbContext<Employee>
     {

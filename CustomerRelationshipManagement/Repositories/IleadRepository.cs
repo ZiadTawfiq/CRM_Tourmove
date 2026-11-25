@@ -6,7 +6,6 @@ namespace CustomerRelationshipManagement.Repositories
     public interface ILeadRepository
     {
         Task CreateAsync(Lead lead);
-        Task UpdateAsync(UpdateLeadDto updateLeadDto);
         Task DeleteAsync(int id);
         Task<Lead?> GetByIdAsync(int id);
         Task<IEnumerable<Lead>> GetAllAsync();
@@ -15,7 +14,7 @@ namespace CustomerRelationshipManagement.Repositories
         Task SaveChangesAsync();
         Task<Lead?> GetLeadByPhoneNumberAndGroupId(string phoneNumber, int groupId);
         Task<List<Comment>> GetCommentsForLead(int leadId);
-        Task<List<Lead>> FilterLeadsAsync(LeadFilterDto filterDto);
+        IQueryable<Lead> GetLeadsQuery();
 
     }
 }

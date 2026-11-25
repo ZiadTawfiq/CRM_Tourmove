@@ -2,25 +2,19 @@ using CustomerRelationshipManagement.Dtos;
 using CustomerRelationshipManagement.Entities;
 using CustomerRelationshipManagement.LeadStatusHandler;
 using CustomerRelationshipManagement.Repositories;
+using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CustomerRelationshipManagement.Sevices
 {
-    public class LeadService(ILeadRepository repository, IEnumerable<ILeadStatusHandler> statusHandlers, IEmployeeService employeeService ,IleadDuplicateService leadDuplicateService) : ILeadService
+    // <summary> cohesive service for managing leads, including creation, deletion, filtering, and status updates
+    // and apply strategy pattern for handling different lead statuses. It also includes functionality for assigning leads to sales representatives and managing duplicate leads.
+    // and implement OCP   </summary>
+    public class LeadService(ILeadRepository repository, IProjectRepository projectRepository,IEnumerable<ILeadStatusHandler> statusHandlers , ILeadAssignmentService leadAssignmentService, IEmployeeService employeeService ,IleadDuplicateService leadDuplicateService) : ILeadService
     {
         private readonly IEnumerable<ILeadStatusHandler> _statusHandlers = statusHandlers;
 
-
-        public async Task AssignLeadsToSalesRep(List<int> leadIds, int salesRepId)
-        {
-            var leads = await repository.GetLeadsByIdsAsync(leadIds);
-
-            foreach (var lead in leads)
-            {
-                lead.EmployeeId = salesRepId.ToString();
-            }
-            await repository.SaveChangesAsync();
-        }
-
+        
         public async Task<LeadDto> CreateAsync(
             CreateLeadDto createLeadDto,
             int groupId)
@@ -118,9 +112,23 @@ namespace CustomerRelationshipManagement.Sevices
 
         public async Task<List<LeadDto>> FilterLeads(LeadFilterDto filterDto)
         {
-            var leads = await repository.FilterLeadsAsync(filterDto);
+            var query = repository.GetLeadsQuery();
+
+            if (filterDto.Status?.Any() == true)
+                query = query.Where(l => filterDto.Status.Contains(l.Status));
+
+            if (filterDto.PhoneNumber != null)
+                query = query.Where(l => l.PhoneNumber.Contains(filterDto.PhoneNumber));
+
+            if (filterDto.ProjectIds?.Any() == true)
+                query = query.Where(l =>
+                    l.ProjectLeads.Any(p => filterDto.ProjectIds.Contains(p.ProjectId)));
+
+            var leads = await query.ToListAsync();
+
             return leads.Select(MapToDto).ToList();
         }
+        
 
         public async Task<IEnumerable<LeadDto>> GetAllAsync()
         {
@@ -134,10 +142,6 @@ namespace CustomerRelationshipManagement.Sevices
             return lead != null ? MapToDto(lead) : null;
         }
 
-        public async Task<List<LeadComparisonDto>> GetLeadsThatSalesTriedToDublicateByProject(List<int> ProjectIds, DateTime? startDate, DateTime? endDate)
-        {
-            return await leadDuplicateService.ListDuplicateLeadsByProjectIdsAsync(ProjectIds, startDate, endDate);
-        }
 
         public async Task<List<LeadDto>> SearchByPhoneNumber(string phoneNumber)
         {
@@ -146,14 +150,48 @@ namespace CustomerRelationshipManagement.Sevices
             return leads.Select(MapToDto).ToList();
         }
 
-        public async Task UpdateAsync(UpdateLeadDto updateLeadDto)
+        public async Task UpdateAsync(UpdateLeadDto dto)
         {
-            var lead = await repository.GetByIdAsync(updateLeadDto.Id);
+            var lead = await repository.GetByIdAsync(dto.Id);
+        
             if (lead == null)
+                throw new KeyNotFoundException("Lead not found");
+
+            // Update basic information
+            lead.Name = dto.Name;
+            lead.PhoneNumber = dto.PhoneNumber;
+            lead.Budget = dto.Budget;
+            lead.EmployeeId = dto.EmployeeId;
+            lead.ChannelId = dto.ChannelId;
+            lead.TypeLead = dto.TypeLead;
+
+            // Change specific project
+            if (dto.OldProjectId.HasValue && dto.NewProjectId.HasValue)
             {
-                throw new Exception($"Lead with ID {updateLeadDto.Id} not found.");
+                var leadProject = lead.ProjectLeads
+                    .FirstOrDefault(lp => lp.ProjectId == dto.OldProjectId);
+
+                if (leadProject == null)
+                    throw new Exception("Lead is not associated with this project");
+
+                var newProjectExists = await projectRepository.CheckExistenceProject(dto.NewProjectId.Value);
+
+                if (!newProjectExists)
+                    throw new KeyNotFoundException("New project not found");
+
+                var alreadyLinked = lead.ProjectLeads
+                    .Any(lp => lp.ProjectId == dto.NewProjectId);
+
+                if (alreadyLinked)
+                    throw new Exception("Lead is already associated with this project");
+
+                leadProject.ProjectId = dto.NewProjectId.Value;
             }
-            await repository.UpdateAsync(updateLeadDto);
+
+            lead.Updated = DateTime.UtcNow;
+
+
+            await repository.SaveChangesAsync();
         }
 
         public async Task UpdateLeadStatus(int leadId, Status status, CreateCommentDto notes)
@@ -193,11 +231,19 @@ namespace CustomerRelationshipManagement.Sevices
             };
         }
 
-        
-
         public async Task SaveChangesAsync()
         {
           await repository.SaveChangesAsync();
+        }
+
+        public async Task AssignLeadsToSalesRep(List<int> leadIds, int salesRepId)
+        {
+           await leadAssignmentService.Assign(leadIds, salesRepId);
+        }
+
+        public async Task<List<LeadComparisonDto>> GetLeadsThatSalesTriedToDublicateByProject(List<int> ProjectIds, DateTime? startDate, DateTime? endDate)
+        {
+            return await leadDuplicateService.ListDuplicateLeadsByProjectIdsAsync(ProjectIds, startDate, endDate);
         }
     }
 }
