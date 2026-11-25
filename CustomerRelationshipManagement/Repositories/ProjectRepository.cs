@@ -1,3 +1,4 @@
+using CustomerRelationshipManagement.Data;
 using CustomerRelationshipManagement.Dtos;
 using CustomerRelationshipManagement.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,12 @@ namespace CustomerRelationshipManagement.Repositories
 {
     public class ProjectRepository(AppDbContext dbContext) : IProjectRepository
     {
+        public async Task<bool> CheckExistenceProject(int projectId)
+        {
+            return await dbContext.Projects
+                .AnyAsync(p => p.Id == projectId);
+        }
+
         public async Task CreateAsync(Project project)
         {
             dbContext.Projects.Add(project);

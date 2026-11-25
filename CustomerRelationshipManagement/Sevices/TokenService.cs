@@ -1,5 +1,4 @@
-﻿
-using CustomerRelationshipManagement;
+﻿using CustomerRelationshipManagement.Data;
 using CustomerRelationshipManagement.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

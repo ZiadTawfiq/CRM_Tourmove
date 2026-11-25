@@ -1,4 +1,4 @@
-using CustomerRelationshipManagement;
+using CustomerRelationshipManagement.Data;
 using CustomerRelationshipManagement.Entities;
 using CustomerRelationshipManagement.LeadDuplicationHandler;
 using CustomerRelationshipManagement.LeadStatusHandler;

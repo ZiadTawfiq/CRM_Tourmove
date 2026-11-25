@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CustomerRelationshipManagement.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace CustomerRelationshipManagement.Repositories
 {

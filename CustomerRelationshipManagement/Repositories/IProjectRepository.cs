@@ -11,5 +11,6 @@ namespace CustomerRelationshipManagement.Repositories
         Task<Project?> GetByIdAsync(int id);
         Task<IEnumerable<Project>> GetAllAsync();
         Task<IEnumerable<Project>> GetProjectsByGroupIdAsync(int groupId);
+        Task <bool> CheckExistenceProject(int projectId);
     }
 }
